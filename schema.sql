@@ -131,7 +131,7 @@ CREATE TABLE Rooms (
 
 CREATE TABLE Course_Sessions (
     course_session_id INTEGER,
-    room_id INTEGER NOT NULL,
+    rid INTEGER NOT NULL,
     eid INTEGER NOT NULL,
     session_date DATE
     -- check session_date falls between monday and friday
@@ -161,7 +161,7 @@ CREATE TABLE Course_Sessions (
     
     launch_date DATE,
     course_id INTEGER,
-    FOREIGN KEY(room_id) REFERENCES Rooms(room_id),
+    FOREIGN KEY(rid) REFERENCES Rooms(rid),
     FOREIGN KEY(eid) REFERENCES Instructors(eid),
     FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id),
     PRIMARY KEY(launch_date,course_id,course_session_id)
