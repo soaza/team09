@@ -1,0 +1,10 @@
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (1, '417 Roxbury Avenue', '95520089', 'Cathrin', 'cvandermark0@spotify.com');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (2, '06 Havey Terrace', '93650609', 'Aveline', 'ahenighan1@uiuc.edu');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (3, '7 Independence Terrace', '96886328', 'Chaunce', 'cdionisio2@theatlantic.com');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (4, '573 Hollow Ridge Point', '96151674', 'Lauren', 'lfairlaw3@feedburner.com');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (5, '08470 Surrey Way', '90928887', 'Genovera', 'gdanilyuk4@whitehouse.gov');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (6, '66 Vidon Alley', '93460379', 'Denny', 'dsenogles5@godaddy.com');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (7, '6 Northview Way', '96622560', 'Payton', 'pdevoy6@rediff.com');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (8, '4 Red Cloud Trail', '99017037', 'Orran', 'ogullane7@dot.gov');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (9, '73 Maryland Court', '90731293', 'Laurie', 'lboulden8@gov.uk');
+INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (10, '2 Shelley Hill', '94081690', 'Robers', 'rwarrener9@abc.net.au');

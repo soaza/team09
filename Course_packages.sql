@@ -1,0 +1,10 @@
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (1, '2021-02-16 07:38:51', '2021-02-08 19:09:09', 'Flexidy', 233, 10);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (2, '2020-04-26 00:30:32', '2020-08-18 09:12:32', 'Bitwolf', 569, 3);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (3, '2020-09-17 16:27:04', '2020-12-01 09:01:12', 'Home Ing', 397, 9);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (4, '2021-01-13 20:08:00', '2021-03-03 21:40:01', 'Alphazap', 488, 6);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (5, '2021-01-03 11:23:57', '2020-10-13 19:30:33', 'Span', 599, 9);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (6, '2020-06-21 02:56:28', '2020-05-04 04:18:53', 'Duobam', 863, 9);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (7, '2021-01-10 01:28:34', '2020-12-08 07:55:37', 'Aerified', 132, 2);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (8, '2020-06-16 16:04:12', '2020-12-15 05:31:22', 'Asoka', 731, 1);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (9, '2020-06-10 11:50:07', '2021-03-22 22:06:05', 'Tempsoft', 365, 2);
+INSERT Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) values (10, '2021-03-22 07:54:53', '2020-08-17 14:03:06', 'Veribet', 228, 5);
