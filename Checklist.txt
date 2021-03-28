@@ -7,6 +7,11 @@ Tests:
 
 Data Insertion:
 [X] Employees
+[X] Rooms
+[X] Customers
+[X] Course_packages
+
+
 [] Part_time_Emp
 [] Full_time_Emp
 [] Managers
@@ -19,12 +24,9 @@ Data Insertion:
 [] Specialises
 [] Courses
 [] Offerings
-[X] Rooms
 [] Course_Sessions
-[X] Customers
 [] Credit_cards
 [] Registers
-[X] Course_packages
 [] Buys
 [] Redeems
 [] Cancels
@@ -32,8 +34,8 @@ Data Insertion:
 Functions:
 Written[] Tested[] 1. add_employee
 Written[] Tested[] 2. remove_employee
-Written[] Tested[] 3. add_customer
-Written[] Tested[] 4. update_credit_card
+Written[X] Tested[X] 3. add_customer
+Written[X] Tested[X] 4. update_credit_card
 Written[X] Tested[] 5. add_course
 Written[X] Tested[] 6. find_instructors
 Written[] Tested[] 7. get_available_instructors

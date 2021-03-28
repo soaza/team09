@@ -39,7 +39,7 @@ Employees
 ,Cancels CASCADE ;
 
 CREATE TABLE Employees(
-    eid INTEGER PRIMARY KEY,
+    eid INTEGER PRIMARY KEY ,
     emp_name TEXT,
     emp_address TEXT,
     phone INTEGER,
@@ -202,13 +202,14 @@ CREATE TABLE Customers (
     email TEXT
 );
 
+-- Restrict each customer to one credit card
 CREATE TABLE Credit_cards (
     credit_card_num INTEGER PRIMARY KEY,
     cvv INTEGER,
     card_expiry_date DATE,
     from_date DATE,
     cust_id INTEGER NOT NULL,
-    UNIQUE(credit_card_num,cust_id),
+    UNIQUE(cust_id),
     FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
 );
 
@@ -224,7 +225,7 @@ CREATE TABLE Registers (
     cust_id INTEGER,
     -- Primary Key of Credit_cards
     credit_card_num INTEGER,
-    FOREIGN KEY(credit_card_num,cust_id) REFERENCES Credit_cards(credit_card_num,cust_id),
+    FOREIGN KEY(cust_id) REFERENCES Credit_cards(cust_id),
     FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
     PRIMARY KEY(cust_id,launch_date,course_id)
     -- No course_session_id due to at most one constraint,
