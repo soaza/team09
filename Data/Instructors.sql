@@ -1,0 +1,3 @@
+INSERT INTO Instructors VALUES (1)
+INSERT INTO Instructors VALUES (3)
+INSERT INTO Instructors VALUES (5)

@@ -39,7 +39,7 @@ Employees
 ,Cancels CASCADE ;
 
 CREATE TABLE Employees(
-    eid INTEGER PRIMARY KEY ,
+    eid INTEGER PRIMARY KEY,
     emp_name TEXT,
     emp_address TEXT,
     phone INTEGER,
@@ -215,7 +215,7 @@ CREATE TABLE Credit_cards (
 
 
 CREATE TABLE Registers (
-    -- Trigger 1: customers must register before registration_deadline Offerings
+    -- Trigger 1: customers must register before registration_deadline Offerings            
     registration_date DATE,
     -- Primary Key of Course_Sessions
     course_session_id INTEGER NOT NULL,

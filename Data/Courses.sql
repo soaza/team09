@@ -1,0 +1,1 @@
+INSERT INTO Courses VALUES (1,'Math','Math 101','Math is fun',2)

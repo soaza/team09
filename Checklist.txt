@@ -39,7 +39,7 @@ Written[X] Tested[X] 4. update_credit_card
 Written[X] Tested[] 5. add_course
 Written[X] Tested[] 6. find_instructors
 Written[] Tested[] 7. get_available_instructors
-Written[X] Tested[] 8. find_rooms
+Written[X] Tested[X] 8. find_rooms
 Written[] Tested[] 9. get_available_rooms
 Written[] Tested[] 10. add_course_offering
 Written[] Tested[] 11. add_course_package

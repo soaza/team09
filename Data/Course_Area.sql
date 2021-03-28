@@ -1,0 +1,1 @@
+INSERT INTO Course_area VALUES (3)
