@@ -51,13 +51,13 @@ CREATE TABLE Employees(
 
 CREATE TABLE Part_time_Emp (
     eid INTEGER PRIMARY KEY,
-    hourly_rate MONEY,
+    hourly_rate DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
 
 CREATE TABLE Full_time_Emp (
     eid INTEGER PRIMARY KEY,
-    month_salary MONEY,
+    month_salary DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
 
@@ -205,7 +205,7 @@ CREATE TABLE Customers (
 
 -- Restrict each customer to one credit card
 CREATE TABLE Credit_cards (
-    credit_card_num INTEGER PRIMARY KEY,
+    credit_card_num TEXT PRIMARY KEY,
     cvv INTEGER,
     card_expiry_date DATE,
     from_date DATE,
@@ -225,7 +225,7 @@ CREATE TABLE Registers (
 
     cust_id INTEGER,
     -- Primary Key of Credit_cards
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     FOREIGN KEY(cust_id) REFERENCES Credit_cards(cust_id),
     FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
     PRIMARY KEY(cust_id,launch_date,course_id)
@@ -249,7 +249,7 @@ CREATE TABLE Course_packages (
 CREATE TABLE Buys (
     buy_date DATE,
     package_id INTEGER,
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     num_remaining_redemptions INTEGER,
     FOREIGN KEY(credit_card_num) REFERENCES Credit_cards(credit_card_num),
     FOREIGN KEY(package_id) REFERENCES Course_packages(package_id),
@@ -260,7 +260,7 @@ CREATE TABLE Redeems (
     redeem_date DATE,
     -- Primary Key of Buys
     buy_date DATE,
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     package_id INTEGER,
     -- Primary Key of Course_Sessions
     course_session_id INTEGER,
