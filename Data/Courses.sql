@@ -1,1 +1,10 @@
-INSERT INTO Courses VALUES (1,'Math','Math 101','Math is fun',2)
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (1, 'SolidWorks', 'SolidWorks Course', 'Burn of third degree of left axilla, sequela', 1);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (2, 'Omega', 'Omega Course', 'Unspecified otosclerosis, left ear', 1);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (3, 'Rhinoplasty', 'Rhinoplasty Course', 'Perforation due to fb acc left in body following procedure', 2);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (4, 'TVPaint', 'TVPaint Course', 'Resistance to unspecified beta lactam antibiotics', 3);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (5, 'Career Counseling', 'Career Counseling Course', 'Sltr-haris Type III physl fx low end ulna, r arm, 7thP', 2);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (6, 'TMF', 'TMF', 'Shaken infant syndrome Course', 2);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (7, 'Mac &amp; PC platforms', 'Mac &amp; PC platforms Course', 'Unsp inj msl/tnd lng flxr msl toe at ank/ft lev, r ft, subs', 1);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (8, 'Physical Therapy', 'Physical Therapy Course', 'Disp fx of lateral end of r clavicle, subs for fx w nonunion', 3);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (9, 'CQS', 'CQS Course', 'Immunization not carried out because of caregiver refusal', 1);
+insert into Courses (course_id, course_area_name, title, course_description, duration) values (10, 'Social Media', 'Social Media Course', 'Burn of second degree of unspecified toe(s) (nail), sequela', 1);

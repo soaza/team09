@@ -1,1 +1,10 @@
-INSERT INTO Course_area VALUES (3)
+insert into Course_Area (course_area_name, eid) values ('SolidWorks', 1);
+insert into Course_Area (course_area_name, eid) values ('Omega', 2);
+insert into Course_Area (course_area_name, eid) values ('Rhinoplasty', 3);
+insert into Course_Area (course_area_name, eid) values ('TVPaint', 4);
+insert into Course_Area (course_area_name, eid) values ('Career Counseling', 5);
+insert into Course_Area (course_area_name, eid) values ('TMF', 6);
+insert into Course_Area (course_area_name, eid) values ('Mac &amp; PC platforms', 7);
+insert into Course_Area (course_area_name, eid) values ('Physical Therapy', 8);
+insert into Course_Area (course_area_name, eid) values ('CQS', 9);
+insert into Course_Area (course_area_name, eid) values ('Social Media', 10);

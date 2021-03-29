@@ -36,9 +36,9 @@ Employees
 ,Course_packages
 ,Buys
 ,Redeems
-,Cancels CASCADE ;
+,Cancels CASCADE;
 
-CREATE TABLE Employees(
+CREATE TABLE Employees (
     eid INTEGER PRIMARY KEY,
     emp_name TEXT,
     emp_address TEXT,
@@ -82,7 +82,7 @@ CREATE TABLE Pay_slips (
     PRIMARY KEY(payment_date,eid)
 );
 
-CREATE TABLE Instructors(
+CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
@@ -125,16 +125,17 @@ CREATE TABLE Courses (
     FOREIGN KEY(course_area_name) REFERENCES Course_area(course_area_name)
 );
 
-
 CREATE TABLE Offerings (
-    launch_date DATE,
-    course_id INTEGER REFERENCES Courses(course_id),
+    launch_date DATE
+        CHECK (launch_date < registration_deadline),
+    course_id INTEGER REFERENCES Courses(course_id)
+        ON DELETE CASCADE,
     -- eid of administrator
     eid INTEGER NOT NULL,
     actual_start_date DATE,
     end_date DATE,
     registration_deadline DATE
-        CHECK (registration_deadline - actual_start_date >= 10),
+        CHECK (actual_start_date - registration_deadline >= 10),
     target_number_registrations INTEGER
         CHECK (target_number_registrations >= 0),
     seating_capacity INTEGER
@@ -190,7 +191,8 @@ CREATE TABLE Course_Sessions (
     course_id INTEGER,
     FOREIGN KEY(rid) REFERENCES Rooms(rid),
     FOREIGN KEY(eid) REFERENCES Instructors(eid),
-    FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id),
+    FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id)
+        ON DELETE CASCADE,
     PRIMARY KEY(launch_date,course_id,course_session_id)
 );
 

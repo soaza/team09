@@ -1,1 +1,10 @@
-INSERT INTO Course_Sessions VALUES (1,1,1,'2020-11-13','09:00:00','10:00:00','2020-11-11',1)
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 1, 21, '2021-07-21', '9:00 AM', '10:00 AM', '2021-01-26', 1);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 2, 22, '2021-06-24', '4:00 PM', '5:00 PM', '2021-05-14', 2);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 3, 23, '2021-07-13', '2:15 PM', '4:15 PM', '2021-05-11', 3);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 4, 24, '2021-07-08', '2:00 PM', '5:00 PM', '2021-04-14', 4);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2021-06-19', 5);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 6, 36, '2021-07-20', '4:00 PM', '6:00 PM', '2021-04-22', 6);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 7, 37, '2022-06-23', '9:00 AM', '10:00 AM', '2021-09-11', 7);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 8, 38, '2021-08-30', '2:00 PM', '5:00 PM', '2021-05-30', 8);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 9, 39, '2022-04-29', '9:00 AM', '10:00 AM', '2021-10-31', 9);
+insert into Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) values (1, 10, 40, '2022-05-02', '9:00 AM', '10:00 AM', '2021-06-13', 10);
