@@ -13,6 +13,7 @@
     -- i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
 -- Trigger 8:Each part-time instructor must not teach more than 30 hours for each month.
 -- Trigger 9:Each course offering is managed by the manager of that course area.
+-- trigger 10: duration of course = duration of course session
 
 DROP TABLE IF EXISTS
 Employees

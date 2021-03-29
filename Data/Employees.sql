@@ -40,3 +40,114 @@ INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depa
 INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (39, 'Amberly', '30470 Annamark Court', '95772467', 'alanders12@upenn.edu', '2020-04-01', '2021-03-19');
 INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (40, 'Norine', '17 Barnett Hill', '96419664', 'nminards13@chron.com', '2020-10-31', '2021-03-02');
 
+-- Full Time Employees
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (1, 1028);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (2, 1990);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (3, 2149);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (4, 1785);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (5, 1440);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (6, 2633);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (7, 2975);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (8, 1805);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (9, 1353);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (10, 1210);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (11, 1373);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (12, 1421);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (13, 1652);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (14, 2339);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (15, 1901);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (16, 2490);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (17, 1678);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (18, 2095);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (19, 1262);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (20, 1055);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (21, 2561);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (22, 1914);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (23, 2050);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (24, 2576);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (25, 2828);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (26, 2271);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (27, 2015);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (28, 2828);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (29, 2688);
+INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (30, 1784);
+
+-- Part Time Employees
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (31, 50);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (32, 25);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (33, 56);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (34, 22);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (35, 20);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (36, 34);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (37, 59);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (38, 23);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (39, 24);
+INSERT INTO Part_time_Emp (eid, hourly_rate) VALUES (40, 40);
+
+-- Managers
+INSERT INTO Managers (eid) VALUES (1);
+INSERT INTO Managers (eid) VALUES (2);
+INSERT INTO Managers (eid) VALUES (3);
+INSERT INTO Managers (eid) VALUES (4);
+INSERT INTO Managers (eid) VALUES (5);
+INSERT INTO Managers (eid) VALUES (6);
+INSERT INTO Managers (eid) VALUES (7);
+INSERT INTO Managers (eid) VALUES (8);
+INSERT INTO Managers (eid) VALUES (9);
+INSERT INTO Managers (eid) VALUES (10);
+
+-- Admin
+INSERT INTO Administrators (eid) VALUES (11);
+INSERT INTO Administrators (eid) VALUES (12);
+INSERT INTO Administrators (eid) VALUES (13);
+INSERT INTO Administrators (eid) VALUES (14);
+INSERT INTO Administrators (eid) VALUES (15);
+INSERT INTO Administrators (eid) VALUES (16);
+INSERT INTO Administrators (eid) VALUES (17);
+INSERT INTO Administrators (eid) VALUES (18);
+INSERT INTO Administrators (eid) VALUES (19);
+INSERT INTO Administrators (eid) VALUES (20);
+
+-- Instructors
+INSERT INTO Instructors (eid) VALUES (21);
+INSERT INTO Instructors (eid) VALUES (22);
+INSERT INTO Instructors (eid) VALUES (23);
+INSERT INTO Instructors (eid) VALUES (24);
+INSERT INTO Instructors (eid) VALUES (25);
+INSERT INTO Instructors (eid) VALUES (26);
+INSERT INTO Instructors (eid) VALUES (27);
+INSERT INTO Instructors (eid) VALUES (28);
+INSERT INTO Instructors (eid) VALUES (29);
+INSERT INTO Instructors (eid) VALUES (30);
+INSERT INTO Instructors (eid) VALUES (31);
+INSERT INTO Instructors (eid) VALUES (32);
+INSERT INTO Instructors (eid) VALUES (33);
+INSERT INTO Instructors (eid) VALUES (34);
+INSERT INTO Instructors (eid) VALUES (35);
+INSERT INTO Instructors (eid) VALUES (36);
+INSERT INTO Instructors (eid) VALUES (37);
+INSERT INTO Instructors (eid) VALUES (38);
+INSERT INTO Instructors (eid) VALUES (39);
+INSERT INTO Instructors (eid) VALUES (40);
+
+INSERT INTO Full_time_instructors (eid) VALUES (21);
+INSERT INTO Full_time_instructors (eid) VALUES (22);
+INSERT INTO Full_time_instructors (eid) VALUES (23);
+INSERT INTO Full_time_instructors (eid) VALUES (24);
+INSERT INTO Full_time_instructors (eid) VALUES (25);
+INSERT INTO Full_time_instructors (eid) VALUES (26);
+INSERT INTO Full_time_instructors (eid) VALUES (27);
+INSERT INTO Full_time_instructors (eid) VALUES (28);
+INSERT INTO Full_time_instructors (eid) VALUES (29);
+INSERT INTO Full_time_instructors (eid) VALUES (30);
+
+INSERT INTO Part_time_instructors (eid) VALUES (31);
+INSERT INTO Part_time_instructors (eid) VALUES (32);
+INSERT INTO Part_time_instructors (eid) VALUES (33);
+INSERT INTO Part_time_instructors (eid) VALUES (34);
+INSERT INTO Part_time_instructors (eid) VALUES (35);
+INSERT INTO Part_time_instructors (eid) VALUES (36);
+INSERT INTO Part_time_instructors (eid) VALUES (37);
+INSERT INTO Part_time_instructors (eid) VALUES (38);
+INSERT INTO Part_time_instructors (eid) VALUES (39);
+INSERT INTO Part_time_instructors (eid) VALUES (40);
