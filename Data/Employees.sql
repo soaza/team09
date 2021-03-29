@@ -8,3 +8,35 @@ INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_dat
 INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (8,'Justine','Ap #445-2105 Aenean Street','90013317','consectetuer.rhoncus.Nullam@massa.net','2020-04-12 08:56:13','2022-01-18 16:01:55');
 INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (9,'Fuller','Ap #583-8652 Quisque Rd.','93665122','nec@Utnecurna.co.uk','2020-10-13 05:58:06','2022-03-11 16:54:47');
 INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (10,'Ifeoma','P.O. Box 526, 1158 Eget, Street','98373247','dictum.sapien@placeratorci.co.uk','2020-07-09 23:17:17','2022-02-14 02:35:02');
+
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (11, 'Myca', '222 Prentice Court', '91609782', 'mcrumba@ucsd.edu', '2020-10-17', '2021-03-25');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (12, 'Leshia', '8573 Oak Lane', '98984689', 'ljulianb@exblog.jp', '2020-05-14', '2021-02-04');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (13, 'Chrisy', '5932 Farmco Center', '94571510', 'civashintsovc@irs.gov', '2020-11-19', '2021-03-04');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (14, 'Lurette', '5 Red Cloud Point', '99447833', 'lnewalld@buzzfeed.com', '2020-12-07', '2021-02-16');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (15, 'Oran', '2627 Center Park', '91669419', 'oivasechkoe@parallels.com', '2020-06-27', '2021-02-13');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (16, 'Aleece', '56391 Pond Alley', '91206264', 'afakeleyf@epa.gov', '2020-10-02', '2021-03-19');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (17, 'Boonie', '150 6th Pass', '96095360', 'bdodsg@craigslist.org', '2020-11-27', '2021-02-04');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (18, 'Jessalin', '7651 Hoffman Lane', '97637386', 'jstedmondh@mit.edu', '2020-07-20', '2021-03-07');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (19, 'Thaddeus', '671 Kenwood Alley', '99306231', 'tfriesei@usa.gov', '2020-04-05', '2021-03-16');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (20, 'Brittni', '5614 Marquette Hill', '95787229', 'bhuiej@hp.com', '2020-04-22', '2021-02-12');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (21, 'Shannen', '5 La Follette Park', '96263207', 'sdavauxk@sourceforge.net', '2020-05-13', '2021-02-27');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (22, 'Kerk', '3 Jana Street', '96986109', 'kgodlemanl@newsvine.com', '2020-06-07', '2021-02-02');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (23, 'Vitia', '7 Westport Crossing', '94201121', 'vwellsmanm@ihg.com', '2020-08-15', '2021-02-26');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (24, 'Paulita', '34695 Atwood Crossing', '98343304', 'pcorraon@xrea.com', '2020-07-22', '2021-03-16');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (25, 'Louie', '7686 Colorado Park', '92660829', 'lwallo@flickr.com', '2020-11-24', '2021-03-09');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (26, 'Ainslie', '12648 Graedel Court', '97414260', 'atuddenhamp@economist.com', '2020-11-08', '2021-02-21');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (27, 'Vinita', '86414 Towne Trail', '92928392', 'vditchq@state.gov', '2020-09-22', '2021-02-27');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (28, 'Eolanda', '8 Parkside Alley', '99781516', 'erichmontr@123-reg.co.uk', '2020-09-19', '2021-03-15');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (29, 'Edan', '57530 Norway Maple Drive', '93203408', 'elangthornes@slate.com', '2020-08-14', '2021-02-27');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (30, 'Eddie', '49506 Lyons Court', '96347606', 'elissandret@wikia.com', '2020-10-07', '2021-03-03');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (31, 'Nora', '1730 Maple Pass', '92512505', 'nstandringu@hud.gov', '2020-09-14', '2021-02-12');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (32, 'Sharity', '402 Loomis Pass', '98102548', 'ssumptonv@epa.gov', '2020-07-07', '2021-02-25');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (33, 'Deeyn', '156 Sloan Place', '93382142', 'dwalshew@jiathis.com', '2020-04-25', '2021-03-15');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (34, 'Noelani', '82690 Jenifer Drive', '92115424', 'nszimonx@mashable.com', '2020-11-30', '2021-03-09');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (35, 'Archie', '521 Northview Drive', '92158014', 'ameindly@nih.gov', '2020-09-27', '2021-03-07');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (36, 'Rob', '7375 Sloan Hill', '93946554', 'rharvardz@biblegateway.com', '2020-07-17', '2021-03-23');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (37, 'Trix', '8 Pepper Wood Circle', '92798664', 'thickinbottom10@bravesites.com', '2020-08-15', '2021-03-19');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (38, 'Edita', '7245 Montana Circle', '92053365', 'epatmore11@cbsnews.com', '2020-03-30', '2021-02-25');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (39, 'Amberly', '30470 Annamark Court', '95772467', 'alanders12@upenn.edu', '2020-04-01', '2021-03-19');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (40, 'Norine', '17 Barnett Hill', '96419664', 'nminards13@chron.com', '2020-10-31', '2021-03-02');
+

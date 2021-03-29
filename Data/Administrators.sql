@@ -1,3 +1,10 @@
-INSERT INTO Administrators values (2)
-INSERT INTO Administrators values (6)
-
+INSERT INTO Administrators (eid) VALUES (11);
+INSERT INTO Administrators (eid) VALUES (12);
+INSERT INTO Administrators (eid) VALUES (13);
+INSERT INTO Administrators (eid) VALUES (14);
+INSERT INTO Administrators (eid) VALUES (15);
+INSERT INTO Administrators (eid) VALUES (16);
+INSERT INTO Administrators (eid) VALUES (17);
+INSERT INTO Administrators (eid) VALUES (18);
+INSERT INTO Administrators (eid) VALUES (19);
+INSERT INTO Administrators (eid) VALUES (20);

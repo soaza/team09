@@ -1,1 +1,10 @@
-INSERT INTO Managers VALUES (3)
+INSERT INTO Managers (eid) VALUES (1);
+INSERT INTO Managers (eid) VALUES (2);
+INSERT INTO Managers (eid) VALUES (3);
+INSERT INTO Managers (eid) VALUES (4);
+INSERT INTO Managers (eid) VALUES (5);
+INSERT INTO Managers (eid) VALUES (6);
+INSERT INTO Managers (eid) VALUES (7);
+INSERT INTO Managers (eid) VALUES (8);
+INSERT INTO Managers (eid) VALUES (9);
+INSERT INTO Managers (eid) VALUES (10);

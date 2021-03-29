@@ -1,3 +1,42 @@
-INSERT INTO Instructors VALUES (1)
-INSERT INTO Instructors VALUES (3)
-INSERT INTO Instructors VALUES (5)
+INSERT INTO Instructors (eid) VALUES (21);
+INSERT INTO Instructors (eid) VALUES (22);
+INSERT INTO Instructors (eid) VALUES (23);
+INSERT INTO Instructors (eid) VALUES (24);
+INSERT INTO Instructors (eid) VALUES (25);
+INSERT INTO Instructors (eid) VALUES (26);
+INSERT INTO Instructors (eid) VALUES (27);
+INSERT INTO Instructors (eid) VALUES (28);
+INSERT INTO Instructors (eid) VALUES (29);
+INSERT INTO Instructors (eid) VALUES (30);
+INSERT INTO Instructors (eid) VALUES (31);
+INSERT INTO Instructors (eid) VALUES (32);
+INSERT INTO Instructors (eid) VALUES (33);
+INSERT INTO Instructors (eid) VALUES (34);
+INSERT INTO Instructors (eid) VALUES (35);
+INSERT INTO Instructors (eid) VALUES (36);
+INSERT INTO Instructors (eid) VALUES (37);
+INSERT INTO Instructors (eid) VALUES (38);
+INSERT INTO Instructors (eid) VALUES (39);
+INSERT INTO Instructors (eid) VALUES (40);
+
+INSERT INTO Full_time_instructors (eid) VALUES (21);
+INSERT INTO Full_time_instructors (eid) VALUES (22);
+INSERT INTO Full_time_instructors (eid) VALUES (23);
+INSERT INTO Full_time_instructors (eid) VALUES (24);
+INSERT INTO Full_time_instructors (eid) VALUES (25);
+INSERT INTO Full_time_instructors (eid) VALUES (26);
+INSERT INTO Full_time_instructors (eid) VALUES (27);
+INSERT INTO Full_time_instructors (eid) VALUES (28);
+INSERT INTO Full_time_instructors (eid) VALUES (29);
+INSERT INTO Full_time_instructors (eid) VALUES (30);
+
+INSERT INTO Part_time_instructors (eid) VALUES (31);
+INSERT INTO Part_time_instructors (eid) VALUES (32);
+INSERT INTO Part_time_instructors (eid) VALUES (33);
+INSERT INTO Part_time_instructors (eid) VALUES (34);
+INSERT INTO Part_time_instructors (eid) VALUES (35);
+INSERT INTO Part_time_instructors (eid) VALUES (36);
+INSERT INTO Part_time_instructors (eid) VALUES (37);
+INSERT INTO Part_time_instructors (eid) VALUES (38);
+INSERT INTO Part_time_instructors (eid) VALUES (39);
+INSERT INTO Part_time_instructors (eid) VALUES (40);
