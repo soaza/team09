@@ -60,3 +60,5 @@ INSERT INTO Course_area VALUES ('Math',3)
 INSERT INTO Courses VALUES (1,'Math','Math 101','Math is fun',2)
 INSERT INTO Offerings VALUES ('2020-11-11',1,2,'2020-11-12','2020-12-12','2020-12-01',3,100,100.0)
 INSERT INTO Course_Sessions VALUES (1,1,1,'2020-11-13','09:00:00','10:00:00','2020-11-11',1)
+
+INSERT INTO Specialises VALUES (5,'Math')

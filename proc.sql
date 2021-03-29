@@ -53,18 +53,18 @@ $$ LANGUAGE plpgsql;
 --  inputs: course identifier, session date, and session start hour. 
 --  The routine returns a table of records consisting of employee identifier and name.
 CREATE OR REPLACE FUNCTION find_instructors 
-(IN course_id INTEGER,IN session_date DATE,start_time TIME)
+(IN find_course_id INTEGER,IN find_session_date DATE,find_start_time TIME)
 RETURNS TABLE(eid INTEGER,emp_name TEXT) AS $$
     SELECT eid,emp_name
-    FROM Specialises NATURAL JOIN Courses NATURAL JOIN Employees T
-    WHERE T.course_id == course_id 
-    AND session_date > T.join_date 
-    AND session_date < T.depart_date
+    FROM (Specialises NATURAL JOIN Courses NATURAL JOIN Employees) T
+    WHERE T.course_id == find_course_id
+    AND find_start_time > T.join_date
+    AND find_start_time < T.depart_date
     -- filter out instructors that have lessons during the start time 
     AND eid NOT IN (
         SELECT eid 
         FROM Course_Sessions C
-        where C.session_date = session_date
+        where C.session_date = find_session_date
         and 
         (C.start_time < start_time and start_time < C.end_time)
     )

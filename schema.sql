@@ -157,6 +157,7 @@ CREATE TABLE Rooms (
 CREATE TABLE Course_Sessions (
     course_session_id INTEGER,
     rid INTEGER NOT NULL,
+    -- eid is instructor id
     eid INTEGER NOT NULL,
     session_date DATE
     -- check session_date falls between monday and friday
