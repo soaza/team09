@@ -13,6 +13,7 @@
     -- i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
 -- Trigger 8:Each part-time instructor must not teach more than 30 hours for each month.
 -- Trigger 9:Each course offering is managed by the manager of that course area.
+-- trigger 10: duration of course = duration of course session
 
 DROP TABLE IF EXISTS
 Employees
@@ -36,9 +37,9 @@ Employees
 ,Course_packages
 ,Buys
 ,Redeems
-,Cancels CASCADE ;
+,Cancels CASCADE;
 
-CREATE TABLE Employees(
+CREATE TABLE Employees (
     eid INTEGER PRIMARY KEY,
     emp_name TEXT,
     emp_address TEXT,
@@ -51,13 +52,13 @@ CREATE TABLE Employees(
 
 CREATE TABLE Part_time_Emp (
     eid INTEGER PRIMARY KEY,
-    hourly_rate MONEY,
+    hourly_rate DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
 
 CREATE TABLE Full_time_Emp (
     eid INTEGER PRIMARY KEY,
-    month_salary MONEY,
+    month_salary DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
 
@@ -82,7 +83,7 @@ CREATE TABLE Pay_slips (
     PRIMARY KEY(payment_date,eid)
 );
 
-CREATE TABLE Instructors(
+CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
     FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
 );
@@ -125,16 +126,17 @@ CREATE TABLE Courses (
     FOREIGN KEY(course_area_name) REFERENCES Course_area(course_area_name)
 );
 
-
 CREATE TABLE Offerings (
-    launch_date DATE,
-    course_id INTEGER REFERENCES Courses(course_id),
+    launch_date DATE
+        CHECK (launch_date < registration_deadline),
+    course_id INTEGER REFERENCES Courses(course_id)
+        ON DELETE CASCADE,
     -- eid of administrator
     eid INTEGER NOT NULL,
     actual_start_date DATE,
     end_date DATE,
     registration_deadline DATE
-        CHECK (registration_deadline - actual_start_date >= 10),
+        CHECK (actual_start_date - registration_deadline >= 10),
     target_number_registrations INTEGER
         CHECK (target_number_registrations >= 0),
     seating_capacity INTEGER
@@ -190,7 +192,8 @@ CREATE TABLE Course_Sessions (
     course_id INTEGER,
     FOREIGN KEY(rid) REFERENCES Rooms(rid),
     FOREIGN KEY(eid) REFERENCES Instructors(eid),
-    FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id),
+    FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id)
+        ON DELETE CASCADE,
     PRIMARY KEY(launch_date,course_id,course_session_id)
 );
 
@@ -205,7 +208,7 @@ CREATE TABLE Customers (
 
 -- Restrict each customer to one credit card
 CREATE TABLE Credit_cards (
-    credit_card_num INTEGER PRIMARY KEY,
+    credit_card_num TEXT PRIMARY KEY,
     cvv INTEGER,
     card_expiry_date DATE,
     from_date DATE,
@@ -225,7 +228,7 @@ CREATE TABLE Registers (
 
     cust_id INTEGER,
     -- Primary Key of Credit_cards
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     FOREIGN KEY(cust_id) REFERENCES Credit_cards(cust_id),
     FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
     PRIMARY KEY(cust_id,launch_date,course_id)
@@ -249,7 +252,7 @@ CREATE TABLE Course_packages (
 CREATE TABLE Buys (
     buy_date DATE,
     package_id INTEGER,
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     num_remaining_redemptions INTEGER,
     FOREIGN KEY(credit_card_num) REFERENCES Credit_cards(credit_card_num),
     FOREIGN KEY(package_id) REFERENCES Course_packages(package_id),
@@ -260,7 +263,7 @@ CREATE TABLE Redeems (
     redeem_date DATE,
     -- Primary Key of Buys
     buy_date DATE,
-    credit_card_num INTEGER,
+    credit_card_num TEXT,
     package_id INTEGER,
     -- Primary Key of Course_Sessions
     course_session_id INTEGER,

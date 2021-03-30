@@ -1,3 +1,0 @@
-INSERT INTO Full_Time_Emp VALUES (2)
-INSERT INTO Full_Time_Emp VALUES (4)
-INSERT INTO Full_Time_Emp VALUES (6)
