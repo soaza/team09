@@ -19,13 +19,13 @@ SELECT eid,emp_name
         and 
         (
         -- start_time between the range
-        (C.start_time < find_start_time and find_start_time < C.end_time)
+        (C.start_time <= find_start_time and find_start_time <= C.end_time)
         or
         (   
             -- end time between the range
-            extract(hours from C.start_time) < extract(hours from find_start_time) + T.duration
+            extract(hours from C.start_time) <= extract(hours from find_start_time) + T.duration
             and
-            extract(hours from find_start_time) + T.duration <  extract(hours from C.end_time)
+            extract(hours from find_start_time) + T.duration <=  extract(hours from C.end_time)
         )
         )
     )
