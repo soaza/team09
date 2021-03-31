@@ -76,21 +76,21 @@ Written[] Tested[] 30. view_manager_report
 Triggers:
 -- Es
 Written[] Tested[] 1: customers must register before registration_deadline Offerings
---
+--Neil
 Written[] Tested[] 2: total seating_capacity from Rooms >= num_registrations with the same course_id in Register and Redeems
 --KG
 Written[] Tested[] 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct at most 1 course session at any time
 --Constance
 Written[X] Tested[] 4: Each course offering has a start date and an end date that is determined by the dates of its earliest and latest sessions, respectively
---KG
+--Neil
 Written[] Tested[] 5: Overlap constraint for Employees is either Manager,Administrator or Instructor
 --KG(cover insertion)
 Written[] Tested[] 6: Instructor who is assigned to teach a course session must be specialized in that course area
---
+--KG
 Written[] Tested[] 7:Each instructor can teach at most one course session at any hour. 
                      Each instructor must not be assigned to teach two consecutive course sessions; 
                      i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
---
+--Es
 Written[] Tested[] 8:Each part-time instructor must not teach more than 30 hours for each month.
---
+--Constance
 Written[] Tested[] 9: duration of course = duration of course session
