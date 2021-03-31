@@ -24,5 +24,4 @@ END
 $$ LANGUAGE SQL
 
 -- Testcases
-SELECT find_rooms('2020-10-10','08:00',2);
-SELECT find_rooms('2020-11-13','08:00',2);
+

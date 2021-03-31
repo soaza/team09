@@ -12,66 +12,85 @@ Data Insertion:
 [X] Course_packages
 
 
-[] Part_time_Emp
-[] Full_time_Emp
-[] Managers
-[] Administrators
-[] Pay_slips
-[] Instructors
-[] Part_time_instructors
-[] Full_time_instructors
-[] Course_area
-[] Specialises
-[] Courses
-[] Offerings
-[] Course_Sessions
-[] Credit_cards
-[] Registers
-[] Buys
-[] Redeems
+[X] Part_time_Emp
+[X] Full_time_Emp
+[X] Managers
+[X] Administrators
+[X] Instructors
+[X] Part_time_instructors
+[X] Full_time_instructors
+[X] Course_area
+[X] Specialises
+[X] Courses
+[X] Offerings
+[X] Course_Sessions
+[X] Credit_cards
+[X] Registers
+[X] Buys
+[X] Redeems
 [] Cancels
+[] Pay_slips
+
 
 Functions:
+-- Neil
 Written[] Tested[] 1. add_employee
 Written[] Tested[] 2. remove_employee
 Written[X] Tested[X] 3. add_customer
 Written[X] Tested[X] 4. update_credit_card
-Written[X] Tested[] 5. add_course
-Written[X] Tested[] 6. find_instructors
-Written[] Tested[] 7. get_available_instructors
+-- KG
+Written[X] Tested[X] 5. add_course
+Written[X] Tested[X] 6. find_instructors
+Written[]  Tested[] 7. get_available_instructors
 Written[X] Tested[X] 8. find_rooms
+-- Constance
 Written[] Tested[] 9. get_available_rooms
 Written[] Tested[] 10. add_course_offering
 Written[] Tested[] 11. add_course_package
 Written[] Tested[] 12. get_available_course_packages
+-- Es
 Written[] Tested[] 13. buy_course_package
 Written[] Tested[] 14. get_my_course_package
 Written[] Tested[] 15. get_available_course_offerings
 Written[] Tested[] 16. get_available_course_sessions
+-- Neil
 Written[] Tested[] 17. register_session
 Written[] Tested[] 18. get_my_registrations
 Written[] Tested[] 19. update_course_session
 Written[] Tested[] 20. cancel_registration
+-- KG
 Written[] Tested[] 21. update_instructor
 Written[] Tested[] 22. update_room
 Written[] Tested[] 23. remove_session
-Written[] Tested[] 24. add_session
+look at forum
 Written[] Tested[] 25. pay_salary
+-- Constance
+Written[] Tested[] 24. add_session
 Written[] Tested[] 26. promote_courses
 Written[] Tested[] 27. top_packages
 Written[] Tested[] 28. popular_courses
+-- Es
 Written[] Tested[] 29. view_summary_report
 Written[] Tested[] 30. view_manager_report
 
 Triggers:
+-- Es
 Written[] Tested[] 1: customers must register before registration_deadline Offerings
+--
 Written[] Tested[] 2: total seating_capacity from Rooms >= num_registrations with the same course_id in Register and Redeems
+--KG
 Written[] Tested[] 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct at most 1 course session at any time
-Written[] Tested[] 4: Each course offering has a start date and an end date that is determined by the dates of its earliest and latest sessions, respectively
+--Constance
+Written[X] Tested[] 4: Each course offering has a start date and an end date that is determined by the dates of its earliest and latest sessions, respectively
+--KG
 Written[] Tested[] 5: Overlap constraint for Employees is either Manager,Administrator or Instructor
+--KG(cover insertion)
 Written[] Tested[] 6: Instructor who is assigned to teach a course session must be specialized in that course area
+--
 Written[] Tested[] 7:Each instructor can teach at most one course session at any hour. 
                      Each instructor must not be assigned to teach two consecutive course sessions; 
                      i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
+--
 Written[] Tested[] 8:Each part-time instructor must not teach more than 30 hours for each month.
-Written[] Tested[] 9:Each course offering is managed by the manager of that course area.
+--
+Written[] Tested[] 9: duration of course = duration of course session
