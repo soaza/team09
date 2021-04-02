@@ -15,10 +15,10 @@ DECLARE
 BEGIN 
 
     SELECT S.session_date INTO find_session_date 
-        FROM Course_Sessions S
-        WHERE S.course_session_id = session_number
-        and S.launch_date = find_launch_date
-        and S.course_id = find_course_id;
+            FROM Course_Sessions S
+            WHERE S.course_session_id = session_number
+            and S.launch_date = find_launch_date
+            and S.course_id = find_course_id;
 
     IF find_session_date > CURRENT_DATE THEN 
         UPDATE Course_Sessions S

@@ -60,7 +60,7 @@ Written[] Tested[] 19. update_course_session
 Written[] Tested[] 20. cancel_registration
 -- KG
 Written[X] Tested[X] 21. update_instructor
-Written[] Tested[] 22. update_room
+Written[X] Tested[X] 22. update_room
 Written[] Tested[] 23. remove_session
 look at forum
 Written[] Tested[] 25. pay_salary
