@@ -11,7 +11,6 @@ create function get_available_instructors(find_course_id integer, find_start_dat
     language plpgsql
 as
 $$
--- sessions 1h apart from each other
 DECLARE 
     curs CURSOR FOR (
                     SELECT *  FROM Instructors natural join Employees natural join Specialises natural join  courses T 

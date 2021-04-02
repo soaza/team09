@@ -1,7 +1,10 @@
-```21. update_instructor: 
+```
+21. update_instructor: 
 This routine is used to change the instructor for a course session. 
+
 input : course offering identifier, session number, and eid 
-. If the course session has not yet started and the update request is valid, 
+
+If the course session has not yet started and the update request is valid, 
 the routine will process the request with the necessary updates. ```
 -- NOTE: course offering identifier consists of launch date and course id as Offerings is a weak entity of Courses
 -- TODO: What do they mean by valid?
