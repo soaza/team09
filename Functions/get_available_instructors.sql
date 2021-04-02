@@ -13,7 +13,9 @@ as
 $$
 -- sessions 1h apart from each other
 DECLARE 
-    curs CURSOR FOR (SELECT *  FROM Instructors natural join Employees);
+    curs CURSOR FOR (
+                    SELECT *  FROM Instructors natural join Employees natural join Specialises natural join  courses T 
+                    WHERE T.course_id = find_course_id);
     possible_date DATE;
     days_arr DATE[];
     r RECORD;
@@ -34,9 +36,10 @@ BEGIN
             );
         -- Loop through all possible days
         FOREACH possible_date SLICE 0 IN ARRAY days_arr
-        LOOP 
+        LOOP
             day_available := possible_date;
             --Loop through all possible hours
+            hours_arr := '{}';
             possible_hours := '{09:00,10:00,11:00,13:00,14:00,15:00,16:00,17:00}';
             FOREACH possible_hour in ARRAY possible_hours
             LOOP
@@ -57,18 +60,17 @@ BEGIN
             SELECT duration INTO session_duration
             FROM Courses NATURAL JOIN Course_Sessions T
             WHERE T.eid = emp_id;
-            
+
             teaching_hours := total_sessions * session_duration;
 
 
             RETURN  NEXT;
 
         END LOOP;
-    
+
     END LOOP;
     END;
 $$;
 
 alter function get_available_instructors(integer, date, date) owner to kimguan;
-
 
