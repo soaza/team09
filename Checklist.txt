@@ -41,7 +41,7 @@ Written[X] Tested[X] 4. update_credit_card
 -- KG
 Written[X] Tested[X] 5. add_course
 Written[X] Tested[X] 6. find_instructors
-Written[]  Tested[] 7. get_available_instructors
+Written[X]  Tested[X] 7. get_available_instructors
 Written[X] Tested[X] 8. find_rooms
 -- Constance
 Written[] Tested[] 9. get_available_rooms
@@ -59,7 +59,7 @@ Written[] Tested[] 18. get_my_registrations
 Written[] Tested[] 19. update_course_session
 Written[] Tested[] 20. cancel_registration
 -- KG
-Written[] Tested[] 21. update_instructor
+Written[X] Tested[X] 21. update_instructor
 Written[] Tested[] 22. update_room
 Written[] Tested[] 23. remove_session
 look at forum
@@ -85,7 +85,7 @@ Written[X] Tested[] 4: Each course offering has a start date and an end date tha
 --Neil
 Written[] Tested[] 5: Overlap constraint for Employees is either Manager,Administrator or Instructor
 --KG(cover insertion)
-Written[] Tested[] 6: Instructor who is assigned to teach a course session must be specialized in that course area
+Written[X] Tested[X] 6: Instructor who is assigned to teach a course session must be specialized in that course area
 --KG
 Written[] Tested[] 7:Each instructor can teach at most one course session at any hour. 
                      Each instructor must not be assigned to teach two consecutive course sessions; 
