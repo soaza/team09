@@ -207,16 +207,22 @@ insert into Courses (course_id, course_area_name, title, course_description, dur
 insert into Courses (course_id, course_area_name, title, course_description, duration) values (10, 'Social Media', 'Social Media Course', 'Burn of second degree of unspecified toe(s) (nail), sequela', 1);
 
 
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (1, '2021-02-16', '2021-02-25', 'Flexidy', 233, 10);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (2, '2021-01-13', '2021-03-03', 'Bitwolf', 569, 3);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (3, '2021-01-02', '2021-12-01', 'Home Ing', 397, 9);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (4, '2021-03-26', '2021-08-18', 'Alphazap', 488, 6);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (5, '2021-01-03', '2021-10-13', 'Span', 599, 9);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (6, '2021-03-21', '2021-05-04', 'Duobam', 863, 9);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (7, '2021-01-10', '2021-12-08', 'Aerified', 132, 2);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (8, '2021-06-16', '2021-12-15', 'Asoka', 731, 1);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (9, '2021-06-10', '2021-08-22', 'Tempsoft', 365, 2);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (10, '2021-05-22', '2021-08-17', 'Veribet', 228, 5);
+-- packages sold in 2020
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (1, '2020-01-10', '2020-12-08', 'Aerified', 132, 2);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (2, '2020-03-21', '2020-05-04', 'Duobam', 863, 9);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (3, '2020-05-22', '2020-08-17', 'Veribet', 228, 5);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (4, '2020-06-10', '2020-08-22', 'Tempsoft', 365, 2);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (5, '2020-06-16', '2020-12-15', 'Asoka', 731, 1);
+
+-- packages sold in 2021
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (6, '2021-01-02', '2021-12-01', 'Home Ing', 397, 9);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (7, '2021-01-03', '2021-10-13', 'Span', 599, 9);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (8, '2021-01-13', '2021-03-03', 'Bitwolf', 569, 3);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (9, '2021-02-16', '2021-02-25', 'Flexidy', 233, 10);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (10, '2021-03-26', '2021-08-18', 'Alphazap', 488, 6);
+
+
+
 
 
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (1, '417 Roxbury Avenue', '95520089', 'Cathrin', 'cvandermark0@spotify.com');
@@ -242,84 +248,82 @@ INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cus
 INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('5100140343626984', '835', '2021-11-15', '2020-12-19', 10);
 
 -- num_remaining_redemptions are one less than original because each are redeemed once
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-20', 1, '347976565588640', 9);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-01-15', 2, '3581999556820888', 2);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-04-10', 3, '5602228197909680', 8);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-04-29', 4, '6771222759988110410', 5);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-08-25', 5, '4911237393604887', 8);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-04-27', 6, '3568672479539854', 8);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-07-20', 7, '6390906154204138', 1);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-08-13', 8, '6709358844174034388', 0);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-07-27', 9, '3587836508168228', 1);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-06-17', 10, '5100140343626984', 4);
-
-
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-02-20', 1, '347976565588640', 9);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-04-27', 2, '3581999556820888', 2);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-13', 3, '5602228197909680', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-17', 4, '6771222759988110410', 5);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-07-27', 5, '4911237393604887', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-20', 6, '3568672479539854', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-01-15', 7, '6390906154204138', 1);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-01', 8, '6709358844174034388', 0);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-16', 9, '3587836508168228', 1);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-27', 10, '5100140343626984', 4);
 
 -- Offerings whose sessions are registered directly
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-01-26', 1, 11, '2021-07-21', '2021-07-21', '2021-02-26', 66, 66, 73);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-05-14', 2, 12, '2021-06-24', '2021-06-24', '2021-06-14', 25, 25, 40);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-05-11', 3, 13, '2021-07-13', '2021-07-13', '2021-06-09', 68, 68, 53);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-04-14', 4, 14, '2021-07-08', '2021-07-08', '2021-05-15', 29, 29, 85);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-06-19', 5, 15, '2021-12-24', '2021-12-24', '2021-07-03', 62, 62, 84);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-04-22', 6, 16, '2021-07-20', '2021-07-20', '2021-06-17', 14, 14, 55);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-09-11', 7, 17, '2022-06-23', '2022-06-23', '2021-10-19', 65, 65, 71);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-05-30', 8, 18, '2021-08-30', '2021-08-30', '2021-07-03', 25, 25, 27);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-10-31', 9, 19, '2022-04-29', '2022-04-29', '2021-11-21', 77, 77, 15);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-06-13', 10, 20, '2022-05-02', '2022-05-02', '2021-10-14', 48, 48, 92);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-05-14', 2, 12, '2021-06-24', '2021-06-24', '2021-06-14', 25, 25, 40);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-05-11', 3, 13, '2021-07-13', '2021-07-13', '2021-06-09', 68, 68, 53);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-04-14', 4, 14, '2021-07-08', '2021-07-08', '2021-05-15', 29, 29, 85);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-19', 5, 15, '2021-12-24', '2021-12-24', '2021-07-03', 62, 62, 84);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-04-22', 6, 16, '2021-07-20', '2021-07-20', '2021-06-17', 14, 14, 55);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-09-11', 7, 17, '2022-06-23', '2022-06-23', '2021-10-19', 65, 65, 71);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-05-30', 8, 18, '2021-08-30', '2021-08-30', '2021-07-03', 25, 25, 27);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-10-31', 9, 19, '2022-04-29', '2022-04-29', '2021-11-21', 77, 77, 15);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-13', 10, 20, '2022-05-02', '2022-05-02', '2021-10-14', 48, 48, 92);
 
 -- Offerings whose sessions are redeemed
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-02-02', 1, 11, '2021-07-22', '2021-07-22', '2021-02-26', 66, 66, 73);
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-03-03', 2, 12, '2021-06-25', '2021-06-25', '2021-06-14', 25, 25, 40);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-04-04', 3, 13, '2021-07-14', '2021-07-14', '2021-06-09', 68, 68, 53);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-05-05', 4, 14, '2021-07-09', '2021-07-09', '2021-05-15', 29, 29, 85);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-06-06', 5, 15, '2021-12-25', '2021-12-25', '2021-07-03', 62, 62, 84);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-06-17', 6, 16, '2021-07-23', '2021-07-23', '2021-06-20', 14, 14, 55);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-01-20', 7, 17, '2022-06-28', '2022-06-28', '2021-10-19', 65, 65, 71);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-06-08', 8, 18, '2021-08-08', '2021-08-08', '2021-07-03', 25, 25, 27);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-10-10', 9, 19, '2022-04-25', '2022-04-25', '2021-11-21', 77, 77, 15);
-INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-09-15', 10, 20, '2022-05-21', '2022-05-21', '2021-10-14', 48, 48, 92);
-
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-04-04', 3, 13, '2021-07-14', '2021-07-14', '2021-06-09', 68, 68, 53);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-05-05', 4, 14, '2021-07-09', '2021-07-09', '2021-05-15', 29, 29, 85);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-06', 5, 15, '2021-12-25', '2021-12-25', '2021-07-03', 62, 62, 84);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-17', 6, 16, '2021-07-23', '2021-07-23', '2021-06-20', 14, 14, 55);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-20', 7, 17, '2022-06-28', '2022-06-28', '2021-10-19', 65, 65, 71);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-08', 8, 18, '2021-08-08', '2021-08-08', '2021-07-03', 25, 25, 27);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-10-10', 9, 19, '2022-04-25', '2022-04-25', '2021-11-21', 77, 77, 15);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-09-15', 10, 20, '2022-05-21', '2022-05-21', '2021-10-14', 48, 48, 92);
 
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 1, 21, '2021-07-21', '9:00 AM', '10:00 AM', '2021-01-26', 1);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 2, 22, '2021-06-24', '4:00 PM', '5:00 PM', '2021-05-14', 2);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 3, 23, '2021-07-13', '2:15 PM', '4:15 PM', '2021-05-11', 3);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 4, 24, '2021-07-08', '2:00 PM', '5:00 PM', '2021-04-14', 4);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2021-06-19', 5);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 6, 36, '2021-07-20', '4:00 PM', '6:00 PM', '2021-04-22', 6);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 7, 37, '2022-06-23', '9:00 AM', '10:00 AM', '2021-09-11', 7);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 8, 38, '2021-08-30', '2:00 PM', '5:00 PM', '2021-05-30', 8);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 9, 39, '2022-04-29', '9:00 AM', '10:00 AM', '2021-10-31', 9);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 40, '2022-05-02', '9:00 AM', '10:00 AM', '2021-06-13', 10);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 2, 22, '2021-06-24', '4:00 PM', '5:00 PM', '2020-05-14', 2);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 3, 23, '2021-07-13', '2:15 PM', '4:15 PM', '2020-05-11', 3);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 4, 24, '2021-07-08', '2:00 PM', '5:00 PM', '2020-04-14', 4);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2020-06-19', 5);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 6, 36, '2021-07-20', '4:00 PM', '6:00 PM', '2020-04-22', 6);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 7, 37, '2022-06-23', '9:00 AM', '10:00 AM', '2020-09-11', 7);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 8, 38, '2021-08-30', '2:00 PM', '5:00 PM', '2020-05-30', 8);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 9, 39, '2022-04-29', '9:00 AM', '10:00 AM', '2020-10-31', 9);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 40, '2022-05-02', '9:00 AM', '10:00 AM', '2020-06-13', 10);
 
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 1, 21, '2021-07-22', '9:00 AM', '10:00 AM', '2021-02-02', 1);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 2, 22, '2021-06-25', '4:00 PM', '5:00 PM', '2021-03-03', 2);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 3, 23, '2021-07-14', '2:15 PM', '4:15 PM', '2021-04-04', 3);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 4, 24, '2021-07-09', '2:00 PM', '5:00 PM', '2021-05-05', 4);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2021-06-06', 5);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 6, 36, '2021-07-23', '4:00 PM', '6:00 PM', '2021-06-17', 6);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 7, 37, '2022-06-28', '9:00 AM', '10:00 AM', '2021-01-20', 7);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 8, 38, '2021-08-06', '2:00 PM', '5:00 PM', '2021-06-08', 8);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 9, 39, '2022-04-21', '9:00 AM', '10:00 AM', '2021-10-10', 9);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 40, '2022-05-18', '9:00 AM', '10:00 AM', '2021-09-15', 10);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 3, 23, '2021-07-14', '2:15 PM', '4:15 PM', '2020-04-04', 3);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 4, 24, '2021-07-09', '2:00 PM', '5:00 PM', '2020-05-05', 4);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2020-06-06', 5);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 6, 36, '2021-07-23', '4:00 PM', '6:00 PM', '2020-06-17', 6);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 7, 37, '2022-06-28', '9:00 AM', '10:00 AM', '2020-01-20', 7);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 8, 38, '2021-08-06', '2:00 PM', '5:00 PM', '2020-06-08', 8);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 9, 39, '2022-04-21', '9:00 AM', '10:00 AM', '2020-10-10', 9);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 40, '2022-05-18', '9:00 AM', '10:00 AM', '2020-09-15', 10);
 
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-02-25', '2021-02-20', '347976565588640', 1, 1, '2021-02-02', 1);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-20', '2021-01-15', '3581999556820888', 2, 1, '2021-03-03', 2);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-04-15', '2021-04-10', '5602228197909680', 3, 1, '2021-04-04', 3);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-06-01', '2021-04-29', '6771222759988110410', 4, 1, '2021-05-05', 4);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-06-25', '2021-08-25', '4911237393604887', 5, 1, '2021-06-06', 5);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-06-18', '2021-04-27', '3568672479539854', 6, 1, '2021-06-17', 6);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-02-08', '2021-07-20', '6390906154204138', 7, 1, '2021-01-20', 7);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-06-18', '2021-08-13', '6709358844174034388', 8, 1, '2021-06-08', 8);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-11-11', '2021-07-27', '3587836508168228', 9, 1, '2021-10-10', 9);
-INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-09-17', '2021-06-17', '5100140343626984', 10, 1, '2021-09-15', 10);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-03-08', '2020-02-20', '347976565588640', 1, 1, '2021-02-02', 1);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-06-18', '2020-04-27', '3581999556820888', 2, 1, '2021-03-03', 2);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-08-18', '2020-06-13', '5602228197909680', 3, 1, '2020-04-04', 3);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-09-17', '2020-06-17', '6771222759988110410', 4, 1, '2020-05-05', 4);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-11-11', '2020-07-27', '4911237393604887', 5, 1, '2020-06-06', 5);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-02-25', '2021-02-20', '3568672479539854', 6, 1, '2020-06-17', 6);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-02-28', '2021-01-15', '6390906154204138', 7, 1, '2020-01-20', 7);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-10', '2021-03-01', '6709358844174034388', 8, 1, '2020-06-08', 8);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-26', '2021-02-16', '3587836508168228', 9, 1, '2020-10-10', 9);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-28', '2021-03-27', '5100140343626984', 10, 1, '2020-09-15', 10);
 
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-02-01', 1, '2021-01-26', 1, 1, '347976565588640');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-06-10', 1, '2021-05-14', 2, 2, '3581999556820888');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-06-01', 1, '2021-05-11', 3, 3, '5602228197909680');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-04-29', 1, '2021-04-14', 4, 4, '6771222759988110410');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-06-25', 1, '2021-06-19', 5, 5, '4911237393604887');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-05-27', 1, '2021-04-22', 6, 6, '3568672479539854');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-09-13', 1, '2021-09-11', 7, 7, '6390906154204138');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-06-28', 1, '2021-05-30', 8, 8, '6709358844174034388');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-11-01', 1, '2021-10-31', 9, 9, '3587836508168228');
-INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-10-10', 1, '2021-06-13', 10, 10, '5100140343626984');
+
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-01-28', 1, '2021-01-26', 1, 1, '347976565588640');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-01-10', 1, '2020-05-14', 2, 2, '3581999556820888');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-01-15', 1, '2020-05-11', 3, 3, '5602228197909680');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-02-01', 1, '2020-04-14', 4, 4, '6771222759988110410');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-02-10', 1, '2020-06-19', 5, 5, '4911237393604887');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-05-27', 1, '2020-04-22', 6, 6, '3568672479539854');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-09-13', 1, '2020-09-11', 7, 7, '6390906154204138');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-06-28', 1, '2020-05-30', 8, 8, '6709358844174034388');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-11-01', 1, '2020-10-31', 9, 9, '3587836508168228');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-10-10', 1, '2020-06-13', 10, 10, '5100140343626984');
