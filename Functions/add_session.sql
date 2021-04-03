@@ -4,10 +4,6 @@
 -- new session start hour, instructor identifier for new session, and room identifier for new session.
 -- If the course offering’s registration deadline has not passed and the the addition request is valid,
 -- the routine will process the request with the necessary updates.
-
--- course offering identifier: do we want to add a field to the schema?
--- or just use launch date and cid, bc for q10 they said course offering identifier but have launch date also
--- Need to consider things like, whether the room is being used on another day
 CREATE OR REPLACE PROCEDURE add_session(offering_launch_date DATE, cid INTEGER, new_session_number INTEGER,
 new_session_day DATE, new_session_start_hour TIME, instructor_id INTEGER, room_id INTEGER)
 AS $$
@@ -43,7 +39,7 @@ BEGIN
     ELSIF room_used <> 0 THEN
         ROLLBACK;
 
-    ELSIF curr_max_session_number IS NULL AND new_session_number != 0 THEN
+    ELSIF curr_max_session_number IS NULL AND new_session_number != 1 THEN
         ROLLBACK;
 
     ELSIF curr_max_session_number + 1 <> new_session_number THEN
@@ -55,10 +51,6 @@ BEGIN
     ELSE
         INSERT INTO Course_sessions VALUES (new_session_number, room_id, instructor_id, new_session_day, new_session_start_hour,
         end_hour, offering_launch_date, cid);
-
-        -- Increase the seating capacity of offerings (Or is this a trigger???)
-        UPDATE Offerings SET seating_capacity = (seating_capacity + room_seating_capacity)
-        WHERE launch_date = offering_launch_date AND course_id = cid;
 
         COMMIT;
     END IF;

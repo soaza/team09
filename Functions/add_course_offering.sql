@@ -1,9 +1,9 @@
 -- Q10 --
--- eid refers to Administrator's eid
--- assign instructors if valid, else abort
--- seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.
----- session_info includes: session_date DATE, start_time TIME, rid INTEGER
-CREATE OR REPLACE PROCEDURE add_course_offering(course_offering_identifier INTEGER, offering_launch_date DATE, cid INTEGER,
+-- Adds course offering and sessions if any.
+-- Assign instructors if valid, else abort whole function.
+-- Seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.
+-- Input sessions_info includes: session_date DATE, start_time TIME, rid INTEGER
+CREATE OR REPLACE PROCEDURE add_course_offering(offering_launch_date DATE, cid INTEGER,
     offering_fees DECIMAL, offering_registration_deadline DATE, admin_eid INTEGER, offering_target_number_registrations INTEGER,
     sessions_info TEXT[][])
 AS $$
@@ -20,7 +20,6 @@ AS $$
         instructor_id INTEGER;
 
     BEGIN
-        -- Do we need check whether course_id exists, fees > 0, reg_deadline before the launch date, eid is of admin? Or rely on schema to check?
         INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
         VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
 
@@ -38,6 +37,7 @@ AS $$
 
             SELECT count(*) from find_instructors(cid, session_date, start_time) INTO num_available_instructors;
             IF num_available_instructors = 0 THEN
+                RAISE NOTICE 'Note: Unable to assign instructors, addition of course offering is rollbacked.';
                 ROLLBACK;
             ELSE
                 SELECT eid FROM find_instructors(cid, session_date, start_time) ORDER BY eid ASC LIMIT 1 INTO instructor_id;
@@ -50,6 +50,7 @@ AS $$
 
         -- 'Note that the seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.'
         IF offering_target_number_registrations > total_seating_capacity THEN
+            RAISE NOTICE 'Note: Target number of registrations greater than seat capacity, addition of course offering is rollbacked.';
             ROLLBACK;
         END IF;
 

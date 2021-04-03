@@ -221,10 +221,6 @@ INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_
 INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (9, '2021-02-16', '2021-02-25', 'Flexidy', 233, 10);
 INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (10, '2021-03-26', '2021-08-18', 'Alphazap', 488, 6);
 
-
-
-
-
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (1, '417 Roxbury Avenue', '95520089', 'Cathrin', 'cvandermark0@spotify.com');
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (2, '06 Havey Terrace', '93650609', 'Aveline', 'ahenighan1@uiuc.edu');
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (3, '7 Independence Terrace', '96886328', 'Chaunce', 'cdionisio2@theatlantic.com');
@@ -315,7 +311,6 @@ INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-10', '2021-03-01', '6709358844174034388', 8, 1, '2020-06-08', 8);
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-26', '2021-02-16', '3587836508168228', 9, 1, '2020-10-10', 9);
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-28', '2021-03-27', '5100140343626984', 10, 1, '2020-09-15', 10);
-
 
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-01-28', 1, '2021-01-26', 1, 1, '347976565588640');
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-01-10', 1, '2020-05-14', 2, 2, '3581999556820888');
