@@ -252,7 +252,8 @@ CREATE TABLE Buys (
     buy_date DATE,
     package_id INTEGER,
     credit_card_num TEXT,
-    num_remaining_redemptions INTEGER,
+    num_remaining_redemptions INTEGER
+        check (num_remaining_redemptions >= 0),
     FOREIGN KEY(credit_card_num) REFERENCES Credit_cards(credit_card_num),
     FOREIGN KEY(package_id) REFERENCES Course_packages(package_id),
     PRIMARY KEY(buy_date,credit_card_num,package_id)
@@ -268,7 +269,7 @@ CREATE TABLE Redeems (
     course_session_id INTEGER,
     launch_date DATE,
     course_id INTEGER,
-
+    UNIQUE(credit_card_num, launch_date, course_id),
     FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
     FOREIGN KEY(buy_date,credit_card_num,package_id) REFERENCES Buys(buy_date,credit_card_num,package_id),
     PRIMARY KEY(redeem_date,course_session_id,launch_date,course_id,buy_date,credit_card_num,package_id)
