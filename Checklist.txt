@@ -5,6 +5,10 @@ Tests:
 [] data.sql compiles and builds
 [] proc.sql compiles and builds
 
+Violations:
+https://www.postgresql.org/docs/13/plpgsql-errors-and-messages.html
+[]Add notice and exceptions for all violations
+
 Data Insertion:
 [X] Employees
 [X] Rooms
@@ -61,9 +65,9 @@ Written[] Tested[] 20. cancel_registration
 -- KG
 Written[X] Tested[X] 21. update_instructor
 Written[X] Tested[X] 22. update_room
-Written[] Tested[] 23. remove_session
+Written[X] Tested[X] 23. remove_session
 look at forum
-Written[] Tested[] 25. pay_salary
+Written[X] Tested[X] 25. pay_salary
 -- Constance
 Written[] Tested[] 24. add_session
 Written[] Tested[] 26. promote_courses
@@ -94,3 +98,7 @@ Written[] Tested[] 7:Each instructor can teach at most one course session at any
 Written[] Tested[] 8:Each part-time instructor must not teach more than 30 hours for each month.
 --Constance
 Written[] Tested[] 9: duration of course = duration of course session
+
+Additional Triggers:
+Written[] Tested[] 1 :Sid inserted into Sessions must be in consecutive order
+Written[] Tested[] 2:Course_session_date must be before depart_date of employee
