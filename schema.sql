@@ -253,6 +253,7 @@ CREATE TABLE Credit_cards (
     card_expiry_date DATE,
     from_date DATE,
     cust_id INTEGER NOT NULL,
+    UNIQUE(cust_id, credit_card_num),
     UNIQUE(cust_id, from_date),
     -- because we determine the status of the credit card based on most recent from_date
     FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
