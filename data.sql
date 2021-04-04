@@ -244,16 +244,16 @@ INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cus
 INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('5100140343626984', '835', '2021-11-15', '2020-12-19', 10);
 
 -- num_remaining_redemptions are one less than original because each are redeemed once
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-02-20', 1, '347976565588640', 9);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-04-27', 2, '3581999556820888', 2);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-13', 3, '5602228197909680', 8);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-17', 4, '6771222759988110410', 5);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-07-27', 5, '4911237393604887', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-02-20', 1, '347976565588640', 1);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-04-27', 2, '3581999556820888', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-13', 3, '5602228197909680', 4);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-06-17', 4, '6771222759988110410', 1);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-07-27', 5, '4911237393604887', 0);
 INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-20', 6, '3568672479539854', 8);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-01-15', 7, '6390906154204138', 1);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-01', 8, '6709358844174034388', 0);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-16', 9, '3587836508168228', 1);
-INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-27', 10, '5100140343626984', 4);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-01-15', 7, '6390906154204138', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-01', 8, '6709358844174034388', 2);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-16', 9, '3587836508168228', 9);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-27', 10, '5100140343626984', 5);
 
 -- Offerings whose sessions are registered directly
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2021-01-26', 1, 11, '2021-07-21', '2021-07-21', '2021-02-26', 66, 66, 73);

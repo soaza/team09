@@ -52,23 +52,31 @@ CREATE TABLE Employees (
 CREATE TABLE Part_time_Emp (
     eid INTEGER PRIMARY KEY,
     hourly_rate DECIMAL,
-    FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Employees(eid) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Full_time_Emp (
     eid INTEGER PRIMARY KEY,
     month_salary DECIMAL,
-    FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Employees(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Managers (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Administrators (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Pay_slips (
@@ -78,25 +86,37 @@ CREATE TABLE Pay_slips (
     num_work_hours INTEGER,
     -- last work day - first work day + 1
     num_work_days INTEGER,
-    FOREIGN KEY(eid) REFERENCES Employees(eid),
+    FOREIGN KEY(eid) REFERENCES Employees(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     PRIMARY KEY(payment_date,eid)
 );
 
 CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Employees(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Employees(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Part_time_instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Instructors(eid) ON DELETE CASCADE,
-    FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Instructors(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Full_time_instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Instructors(eid)  ON DELETE CASCADE,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) ON DELETE CASCADE
+    FOREIGN KEY(eid) REFERENCES Instructors(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Course_area (
@@ -104,6 +124,10 @@ CREATE TABLE Course_area (
     -- eid is for Manager managing Course_area
     eid INTEGER NOT NULL,
     FOREIGN KEY(eid) REFERENCES Managers(eid)
+        ON UPDATE CASCADE
+    -- decision to not put on delete cascade in order to prevent a deletion of a manager deleting course area (Q2)
+    -- for sql external statements
+    -- (remove employee enforces for normal deletions)
 );
 
 CREATE TABLE Specialises (
@@ -111,8 +135,13 @@ CREATE TABLE Specialises (
     eid INTEGER,
     course_area_name TEXT,
     PRIMARY KEY(eid,course_area_name),
-    FOREIGN KEY(eid) REFERENCES Instructors,
-    FOREIGN KEY(course_area_name) REFERENCES course_area
+    FOREIGN KEY(eid) REFERENCES Instructors
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY(course_area_name) REFERENCES Course_area
+        ON DELETE CASCADE
+    -- decision not to put on update cascade because if an instructor specialises in the previous course area, 
+    -- it doesn't necessarily mean that he would specialise in the updated course area as well
 );
 
 CREATE TABLE Courses (
@@ -123,13 +152,18 @@ CREATE TABLE Courses (
     -- in terms of hours
     duration INTEGER,
     FOREIGN KEY(course_area_name) REFERENCES Course_area(course_area_name)
+        ON DELETE CASCADE
+    -- decision to put on delete cascade because it was not specified that a course area cannot be deleted 
+    -- when there is a course with that area
+    -- decision not to put on update cascade because doesnt mean the course is in cs means it is in english
 );
 
 CREATE TABLE Offerings (
     launch_date DATE
         CHECK (launch_date < registration_deadline),
     course_id INTEGER REFERENCES Courses(course_id)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     -- eid of administrator
     eid INTEGER NOT NULL,
     actual_start_date DATE,
@@ -144,6 +178,8 @@ CREATE TABLE Offerings (
         CHECK (fees >= 0),
     PRIMARY KEY(launch_date,course_id),
     FOREIGN KEY(eid) REFERENCES Administrators(eid)
+        ON UPDATE CASCADE
+    -- decision to not put on delete cascade because cannot an administrator cannot be deleted if he was in charge a course offering
 );
 -- Trigger: seating_capacity >= num_registrations with the same course_id in Register
 
@@ -186,13 +222,17 @@ CREATE TABLE Course_Sessions (
                        extract(hour from end_time) - 14 >= 0
                    )
             ),
-
     launch_date DATE,
     course_id INTEGER,
-    FOREIGN KEY(rid) REFERENCES Rooms(rid),
-    FOREIGN KEY(eid) REFERENCES Instructors(eid),
+    FOREIGN KEY(rid) REFERENCES Rooms(rid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY(eid) REFERENCES Instructors(eid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     PRIMARY KEY(launch_date,course_id,course_session_id)
 );
 
@@ -205,15 +245,19 @@ CREATE TABLE Customers (
     email TEXT
 );
 
--- Restrict each customer to one credit card
+-- Each customer can have more than 1 credit card, but only one active credit card which 
+-- is determined by the most recent from_date
 CREATE TABLE Credit_cards (
     credit_card_num TEXT PRIMARY KEY,
     cvv INTEGER,
     card_expiry_date DATE,
     from_date DATE,
     cust_id INTEGER NOT NULL,
-    UNIQUE(cust_id),
+    UNIQUE(cust_id, from_date),
+    -- because we determine the status of the credit card based on most recent from_date
     FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 
@@ -228,8 +272,12 @@ CREATE TABLE Registers (
     cust_id INTEGER,
     -- Primary Key of Credit_cards
     credit_card_num TEXT,
-    FOREIGN KEY(cust_id) REFERENCES Credit_cards(cust_id),
-    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
+    FOREIGN KEY(cust_id, credit_card_num) REFERENCES Credit_cards(cust_id, credit_card_num)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a customer from being deleted when he has a transaction history
+    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a session from being deleted when at least 1 person has registered for it
     PRIMARY KEY(cust_id,launch_date,course_id)
     -- No course_session_id due to at most one constraint,
     -- if course_session_id is in primary key, customer can register for more
@@ -254,8 +302,12 @@ CREATE TABLE Buys (
     credit_card_num TEXT,
     num_remaining_redemptions INTEGER
         check (num_remaining_redemptions >= 0),
-    FOREIGN KEY(credit_card_num) REFERENCES Credit_cards(credit_card_num),
-    FOREIGN KEY(package_id) REFERENCES Course_packages(package_id),
+    FOREIGN KEY(credit_card_num) REFERENCES Credit_cards(credit_card_num)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a credit_card_num from being deleted when it has a transaction history
+    FOREIGN KEY(package_id) REFERENCES Course_packages(package_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent packages from being deleted when at least 1 person has bought it
     PRIMARY KEY(buy_date,credit_card_num,package_id)
 );
 
@@ -270,8 +322,12 @@ CREATE TABLE Redeems (
     launch_date DATE,
     course_id INTEGER,
     UNIQUE(credit_card_num, launch_date, course_id),
-    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
-    FOREIGN KEY(buy_date,credit_card_num,package_id) REFERENCES Buys(buy_date,credit_card_num,package_id),
+    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a session from being deleted when at least 1 person has redeemed it
+    FOREIGN KEY(buy_date,credit_card_num,package_id) REFERENCES Buys(buy_date,credit_card_num,package_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent packages from being deleted when at least 1 person has redeemed from it
     PRIMARY KEY(redeem_date,course_session_id,launch_date,course_id,buy_date,credit_card_num,package_id)
 );
 
@@ -280,15 +336,22 @@ CREATE TABLE Cancels (
     cancel_date DATE,
     refund_amt MONEY,
     package_credit INTEGER,
+    -- to trace back to course_package
+    package_id INTEGER REFERENCES Course_packages(package_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a package from being deleted because it has txn history
+
     -- Primary Key of Course_Sessions
     course_session_id INTEGER,
     launch_date DATE,
     course_id INTEGER,
 
     cust_id INTEGER,
-    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id),
-    FOREIGN KEY(cust_id) REFERENCES Customers(cust_id),
+    FOREIGN KEY(course_session_id,launch_date,course_id) REFERENCES Course_Sessions(course_session_id,launch_date,course_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a session from being deleted when at least 1 person has cancelled it (txn history)
+    FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
+        ON UPDATE CASCADE,
+    -- decision not to put on delete cascade to prevent a customer from being deleted when he has a transaction history
     PRIMARY KEY(cancel_date,course_session_id,launch_date,course_id,cust_id)
 );
-
-
