@@ -83,7 +83,7 @@ Written[] Tested[] 1: customers must register before registration_deadline Offer
 --Neil
 Written[] Tested[] 2: total seating_capacity from Rooms >= num_registrations with the same course_id in Register and Redeems
 --KG
-Written[] Tested[] 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct at most 1 course session at any time
+Written[X] Tested[X] 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct at most 1 course session at any time
 --Constance
 Written[X] Tested[] 4: Each course offering has a start date and an end date that is determined by the dates of its earliest and latest sessions, respectively
 --Neil
@@ -102,3 +102,5 @@ Written[] Tested[] 9: duration of course = duration of course session
 Additional Triggers:
 Written[] Tested[] 1 :Sid inserted into Sessions must be in consecutive order
 Written[] Tested[] 2:Course_session_date must be before depart_date of employee
+Written[] Tested[] 3:Course_session duration must correspond to course duration
+

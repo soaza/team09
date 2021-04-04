@@ -8,7 +8,7 @@ number of work hours for the month, hourly rate, monthly salary, and salary amou
  For a part-time employees, the values for number of work days for the month and monthly salary should be null. 
 For a full-time employees, the values for number of work hours for the month and hourly rate should be null.
 ```
-create function pay_salary()
+create or replace function pay_salary()
     returns TABLE(emp_id integer, curr_emp_name text, emp_status text, num_work_days integer, num_work_hours integer, curr_hourly_rate numeric, curr_monthly_salary numeric, salary_amount numeric)
     language plpgsql
 as
@@ -68,15 +68,10 @@ BEGIN
             emp_status := 'Part-Time';
             num_work_days := NULL;
 
-            SELECT T.duration INTO part_time_duration
-                    FROM (Course_Sessions NATURAL JOIN Courses) T
-                    WHERE T.eid = emp_id;
-            SELECT part_time_duration * COUNT(*) INTO num_work_hours
-                    FROM (Course_Sessions NATURAL JOIN Courses) T
-                    -- We only consider sessions this month
-                    WHERE T.eid = emp_id
-                      and EXTRACT(MONTH FROM T.session_date) = EXTRACT(MONTH FROM CURRENT_DATE)
-                      and EXTRACT(YEAR FROM T.session_date) = EXTRACT(YEAR FROM CURRENT_DATE);
+            SELECT SUM(duration) INTO num_work_hours FROM (Course_Sessions natural join Courses) T 
+            WHERE T.eid = emp_id
+            AND EXTRACT(MONTH FROM T.session_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+            AND EXTRACT(YEAR FROM T.session_date) = EXTRACT(YEAR FROM CURRENT_DATE);
 
             salary_amount := curr_hourly_rate * num_work_hours;
         END IF;
