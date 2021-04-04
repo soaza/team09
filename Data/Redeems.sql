@@ -8,3 +8,6 @@ INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-10', '2021-03-01', '6709358844174034388', 8, 1, '2020-06-08', 8);
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-26', '2021-02-16', '3587836508168228', 9, 1, '2020-10-10', 9);
 INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2021-03-28', '2021-03-27', '5100140343626984', 10, 1, '2020-09-15', 10);
+
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-01-03', '2020-01-01', '449880711743778', 1, 2, '2020-01-03', 3);
+INSERT INTO Redeems (redeem_date, buy_date, credit_card_num, package_id, course_session_id, launch_date, course_id) VALUES ('2020-01-04', '2020-01-01', '449880711743778', 1, 2, '2020-01-04', 4);

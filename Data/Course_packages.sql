@@ -10,6 +10,6 @@ INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_
 INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (7, '2021-01-03', '2021-10-13', 'Span', 599, 9);
 INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (8, '2021-01-13', '2021-03-03', 'Bitwolf', 569, 3);
 INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (9, '2021-02-16', '2021-02-25', 'Flexidy', 233, 10);
-INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (10, '2021-03-26', '2021-08-18', 'Alphazap', 488, 6);
+INSERT INTO Course_packages (package_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations) VALUES (10, '2021-03-26', '2021-08-18', 'Alphazap', 599, 6);
 
 

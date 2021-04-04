@@ -21,3 +21,9 @@ INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date,
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-06-08', 8, 18, '2021-08-08', '2021-08-08', '2021-07-03', 25, 25, 27);
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-10-10', 9, 19, '2022-04-25', '2022-04-25', '2021-11-21', 77, 77, 15);
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-09-15', 10, 20, '2022-05-21', '2022-05-21', '2021-10-14', 48, 48, 92);
+
+-- Others
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-01', 1, 11, '2020-02-03', '2020-02-03', '2020-01-15', 66, 66, 73);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-02', 2, 12, '2020-02-04', '2020-02-04', '2020-01-16', 66, 66, 73);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-03', 3, 13, '2020-02-05', '2020-02-05', '2020-01-17', 66, 66, 73);
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-04', 4, 14, '2020-02-06', '2020-02-06', '2020-01-18', 66, 66, 73);

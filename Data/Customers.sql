@@ -8,3 +8,6 @@ INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (7
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (8, '4 Red Cloud Trail', '99017037', 'Orran', 'ogullane7@dot.gov');
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (9, '73 Maryland Court', '90731293', 'Laurie', 'lboulden8@gov.uk');
 INSERT INTO Customers (cust_id, cust_address, phone, cust_name, email) values (10, '2 Shelley Hill', '94081690', 'Robers', 'rwarrener9@abc.net.au');
+INSERT INTO Customers VALUES (11, '123 ABC Road', 99011234, 'James', 'james@gmail.com');
+INSERT INTO Customers VALUES (12, '469 Bukit Timah Road', 95651253, 'Tommy', 'tommy@gmail.com');
+INSERT INTO Customers VALUES (13, '578 New Town Road', 95321546, 'Hadley', 'hadley@gmail.com');

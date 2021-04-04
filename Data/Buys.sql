@@ -9,3 +9,5 @@ INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptio
 INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-01', 8, '6709358844174034388', 0);
 INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-02-16', 9, '3587836508168228', 1);
 INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-27', 10, '5100140343626984', 4);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2020-01-01', 1, '449880711743778', 8);
+INSERT INTO Buys (buy_date, package_id, credit_card_num, num_remaining_redemptions) VALUES ('2021-03-05', 8, '5312849162951802', 3);

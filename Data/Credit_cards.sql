@@ -8,3 +8,7 @@ INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cus
 INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('6709358844174034388', '312', '2021-12-27', '2021-01-25', 8);
 INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('3587836508168228', '891', '2021-12-16', '2021-02-17', 9);
 INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('5100140343626984', '835', '2021-11-15', '2020-12-19', 10);
+
+INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('449880711743778', '549', '2021-12-12', '2020-01-01', 11);
+INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('5312849162951802', '091', '2021-12-15', '2020-01-01', 12);
+INSERT INTO Credit_cards (credit_card_num, cvv, card_expiry_date, from_date, cust_id) VALUES ('372510495078493', '510', '2021-12-14', '2020-01-01', 13);

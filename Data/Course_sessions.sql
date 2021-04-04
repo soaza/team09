@@ -20,3 +20,8 @@ INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_ti
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 9, 39, '2022-04-21', '9:00 AM', '10:00 AM', '2020-10-10', 9);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 40, '2022-05-18', '9:00 AM', '10:00 AM', '2020-09-15', 10);
 
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (2, 1, 21, '2020-02-03', '9:00 AM', '10:00 AM', '2020-01-01', 1);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (2, 1, 21, '2020-02-04', '9:00 AM', '10:00 AM', '2020-01-02', 2);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (2, 1, 21, '2020-02-05', '9:00 AM', '11:00 AM', '2020-01-03', 3);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (2, 1, 21, '2020-02-06', '9:00 AM', '12:00 PM', '2020-01-04', 4);
+
