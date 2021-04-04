@@ -322,3 +322,14 @@ INSERT INTO Registers (registration_date, course_session_id, launch_date, course
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-06-28', 1, '2020-05-30', 8, 8, '6709358844174034388');
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-11-01', 1, '2020-10-31', 9, 9, '3587836508168228');
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-10-10', 1, '2020-06-13', 10, 10, '5100140343626984');
+
+INSERT INTO Pay_slips VALUES ('2021-04-04',1,1028,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',2,1990,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',3,2149,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',4,1785,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',5,1440,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',6,2633,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',7,2975,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',8,1805,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',9,1353,null,4);
+INSERT INTO Pay_slips VALUES ('2021-04-04',10,1210,null,4);
