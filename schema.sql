@@ -82,7 +82,7 @@ CREATE TABLE Administrators (
 CREATE TABLE Pay_slips (
     payment_date DATE,
     eid INTEGER,
-    amount MONEY,
+    amount DECIMAL,
     num_work_hours INTEGER,
     -- last work day - first work day + 1
     num_work_days INTEGER,
@@ -335,7 +335,7 @@ CREATE TABLE Redeems (
 CREATE TABLE Cancels (
     -- to check that it is refundable
     cancel_date DATE,
-    refund_amt MONEY,
+    refund_amt DECIMAL,
     package_credit INTEGER,
     -- to trace back to course_package
     package_id INTEGER REFERENCES Course_packages(package_id)
