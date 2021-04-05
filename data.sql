@@ -361,3 +361,27 @@ INSERT INTO Pay_slips VALUES ('2021-04-04',7,2975,null,4);
 INSERT INTO Pay_slips VALUES ('2021-04-04',8,1805,null,4);
 INSERT INTO Pay_slips VALUES ('2021-04-04',9,1353,null,4);
 INSERT INTO Pay_slips VALUES ('2021-04-04',10,1210,null,4);
+
+-- Cancelling a redeemed session (cust 1 cancels course 10)
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-20', NULL, 0, 1, 1, '2020-06-13', 10, 1);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-05-24', NULL, 1, 2, 1, '2020-10-31', 9, 2);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-12', NULL, 0, 3, 1, '2020-05-30', 8, 3);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-07', NULL, 0, 4, 1, '2020-09-11', 7, 4);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-11-24', NULL, 1, 5, 1, '2020-04-22', 6, 5);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-06-20', NULL, 1, 6, 1, '2020-06-19', 5, 6);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-05-23', NULL, 1, 7, 1, '2020-04-14', 4, 7);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-30', NULL, 1, 8, 1, '2020-05-11', 3, 8);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-04-28', NULL, 0, 9, 1, '2020-05-14', 2, 9);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-04-02', NULL, 1, 10, 1, '2021-01-26', 1, 10);
+
+-- Cancelling a registered session (cust 1 cancels course 10)
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-21', 0, NULL, NULL, 1, '2020-09-15', 10, 1);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-05-25', 36, NULL, NULL, 1, '2020-10-10', 9, 2);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-07-13', 0, NULL, NULL, 1, '2020-06-08', 8, 3);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-06-09', 76.50, NULL, NULL, 1, '2020-01-20', 7, 4);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-12-24', 0, NULL, NULL, 1, '2020-06-17', 6, 5);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-06-23', 49.50, NULL, NULL, 1, '2020-06-06', 5, 6);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-05-28', 63.90, NULL, NULL, 1, '2020-05-05', 4, 7);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2021-08-07', 0, NULL, NULL, 1, '2020-04-04', 3, 8);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-03-25', 13.50, NULL, NULL, 1, '2021-03-03', 2, 9);
+insert into Cancels (cancel_date, refund_amt, package_credit, package_id, course_session_id, launch_date, course_id, cust_id) values ('2022-05-20', 0, NULL, NULL, 1, '2021-02-02', 1, 10);
