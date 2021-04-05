@@ -1,4 +1,23 @@
--- 3. add_customer: 
+--||------------------ TRIGGERS --------------------||--
+
+--||------------------ Neil --------------------||--
+
+
+--||------------------ Kim Guan --------------------||--
+
+
+--||------------------ Constance --------------------||--
+
+
+--||------------------ Esmanda --------------------||--
+
+
+
+--||------------------ FUNCTIONS --------------------||--
+
+--||------------------ Neil --------------------||--
+
+-- 3. add_customer:
 create procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
     language plpgsql
 as
@@ -31,6 +50,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+--||------------------ Kim Guan --------------------||--
 
 -- 5. add_course: 
 --  This routine is used to add a new course. 
@@ -193,6 +214,8 @@ END
 $$ LANGUAGE SQL
 
 
+--||------------------ Constance --------------------||--
 
 
 
+--||------------------ Esmanda --------------------||--
