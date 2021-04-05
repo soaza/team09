@@ -90,8 +90,8 @@ Written[X] Tested[] 4: Each course offering has a start date and an end date tha
 Written[] Tested[] 5: Overlap constraint for Employees is either Manager,Administrator or Instructor
 --KG(cover insertion)
 Written[X] Tested[X] 6: Instructor who is assigned to teach a course session must be specialized in that course area
---KG
-Written[] Tested[] 7:Each instructor can teach at most one course session at any hour. 
+--KG    
+Written[X] Tested[X] 7:Each instructor can teach at most one course session at any hour. 
                      Each instructor must not be assigned to teach two consecutive course sessions; 
                      i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
 --Es
