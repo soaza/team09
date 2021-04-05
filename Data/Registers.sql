@@ -8,3 +8,9 @@ INSERT INTO Registers (registration_date, course_session_id, launch_date, course
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-06-28', 1, '2020-05-30', 8, 8, '6709358844174034388');
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-11-01', 1, '2020-10-31', 9, 9, '3587836508168228');
 INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-10-10', 1, '2020-06-13', 10, 10, '5100140343626984');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-01-01', 2, '2020-01-01', 1, 11, '449880711743778');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-01-02', 2, '2020-01-02', 2, 11, '449880711743778');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-02-03', 1, '2020-06-06', 5, 13, '372510495078493');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-03-04', 1, '2020-06-17', 6, 13, '372510495078493');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2021-03-04', 1, '2020-06-06', 5, 10, '5100140343626984');
+INSERT INTO Registers (registration_date, course_session_id, launch_date, course_id, cust_id, credit_card_num) VALUES ('2020-05-30', 1, '2020-05-30', 8, 13, '372510495078493');
