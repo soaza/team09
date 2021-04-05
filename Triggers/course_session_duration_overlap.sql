@@ -38,5 +38,8 @@ BEGIN
 END;
 $$;
 
-alter function course_session_duration_overlap() owner to kimguan;
-
+create trigger course_session_duration_overlap_trigger
+    before insert or update
+    on course_sessions
+    for each row
+execute procedure course_session_duration_overlap();
