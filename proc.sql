@@ -3,10 +3,6 @@
 --||------------------ Neil --------------------||--
 -- Trigger 5: Employee overlap Constraints
 -- Employee overlap constraints split into 3 triggers FOR FIRST ISA LAYER
-create trigger administrator_overlap_check
-before insert or update on Administrators
-for each row execute function administrator_overlap_check();
-
 create or replace function administrator_overlap_check() returns Trigger as $$
 BEGIN
     IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid)) THEN
@@ -18,9 +14,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create trigger manager_overlap_check
-before insert or update on Managers
-for each row execute function manager_overlap_check();
+create trigger administrator_overlap_check
+before insert or update on Administrators
+for each row execute function administrator_overlap_check();
 
 create or replace function manager_overlap_check() returns Trigger as $$
 BEGIN
@@ -33,9 +29,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create trigger Instructor_overlap_check
-before insert or update on Instructors
-for each row execute function instructor_overlap_check();
+create trigger manager_overlap_check
+before insert or update on Managers
+for each row execute function manager_overlap_check();
 
 create or replace function instructor_overlap_check() returns Trigger as $$
 BEGIN
@@ -48,15 +44,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create trigger Instructor_overlap_check
+before insert or update on Instructors
+for each row execute function instructor_overlap_check();
+
+create or replace function full_time_emp_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Employee is already a Part Time Employee. Cannot add as a Full time Employee.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 -- For overlap checking between full time and part time FOR SECOND ISA layer
 create trigger full_time_emp_overlap_check
 before insert or update on Full_time_Emp
 for each row execute function full_time_emp_overlap_check();
 
-create or replace function full_time_emp_overlap_check() returns Trigger as $$
+create or replace function part_time_emp_overlap_check() returns Trigger as $$
 BEGIN
-    IF (EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
-        RAISE NOTICE 'Employee is already a Part Time Instructor. Cannot add as a Full time Instructor.';
+    IF (EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Employee is already a Full Time Employee. Cannot add as a Part time Employee.';
         RETURN NULL;
     ELSE
         RETURN NEW;
@@ -68,31 +79,31 @@ create trigger part_time_emp_overlap_check
 before insert or update on Part_time_Emp
 for each row execute function part_time_emp_overlap_check();
 
-create or replace function part_time_emp_overlap_check() returns Trigger as $$
-BEGIN
-    IF (EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
-        RAISE NOTICE 'Employee is already a Full Time Instructor. Cannot add as a Part time Instructor.';
-        RETURN NULL;
-    ELSE
-        RETURN NEW;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Additional triggers, just in case external SQL statements manipulate these table
 -- Focus on part/full_time_instructors/emp, for within part time emp and part time instructors, for within full time emp and full time instructors
 -- Here bw stands for between
-
-create trigger bw_part_time_instructor_overlap_check
-before insert or update on Part_time_instructors
-for each row execute function bw_part_time_instructor_overlap_check();
 
 create or replace function bw_part_time_instructor_overlap_check() returns Trigger as $$
 BEGIN
     IF ((EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid))and not EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid)) THEN
         RETURN NEW;
     ELSE
-        RAISE NOTICE 'Cannot insert part time instructor'
+        RAISE NOTICE 'Cannot insert part time instructor';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger bw_part_time_instructor_overlap_check
+before insert or update on Part_time_instructors
+for each row execute function bw_part_time_instructor_overlap_check();
+
+create or replace function bw_full_time_instructor_overlap_check() returns Trigger as $$
+BEGIN
+    IF ((EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) and not EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid)) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Cannot insert full time instructor';
         RETURN NULL;
     END IF;
 END;
@@ -102,12 +113,12 @@ create trigger bw_full_time_instructor_overlap_check
 before insert or update on Full_time_instructors
 for each row execute function bw_full_time_instructor_overlap_check();
 
-create or replace function bw_full_time_instructor_overlap_check() returns Trigger as $$
+create or replace function bw_part_time_Emp_overlap_check() returns Trigger as $$
 BEGIN
-    IF ((EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) and not EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid)) THEN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
         RETURN NEW;
     ELSE
-        RAISE NOTICE 'Cannot insert full time instructor'
+        RAISE NOTICE 'Cannot insert part time employee';
         RETURN NULL;
     END IF;
 END;
@@ -117,12 +128,12 @@ create trigger bw_part_time_Emp_overlap_check
 before insert or update on Part_time_Emp
 for each row execute function bw_part_time_Emp_overlap_check();
 
-create or replace function bw_part_time_Emp_overlap_check() returns Trigger as $$
+create or replace function bw_full_time_Emp_overlap_check() returns Trigger as $$
 BEGIN
-    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
         RETURN NEW;
     ELSE
-        RAISE NOTICE 'Cannot insert part time employee'
+        RAISE NOTICE 'Cannot insert full time employee';
         RETURN NULL;
     END IF;
 END;
@@ -132,38 +143,58 @@ create trigger bw_full_time_Emp_overlap_check
 before insert or update on Full_time_Emp
 for each row execute function bw_full_time_Emp_overlap_check();
 
-create or replace function bw_full_time_Emp_overlap_check() returns Trigger as $$
-BEGIN
-    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
-        RETURN NEW;
-    ELSE
-        RAISE NOTICE 'Cannot insert full time employee'
-        RETURN NULL;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Trigger 2: Seating Capacity in Sessions cannot exceed room capacity
 -- Need to make trigger for total_seating_capacity from Rooms>=num_registrations witin the same course_id in Register and Redeems
-create trigger check_seating_capacity_registers
-before insert or update on Registers
-for each row execute function check_seating_capacity_registers();
 
 create or replace function check_seating_capacity_registers() returns Trigger as $$
 DECLARE
     numRegs INTEGER;
     numRedeems INTEGER;
     totalSeatingCapacity INTEGER;
+    room_id INTEGER;
 BEGIN
-    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = NEW.rid;
+    SELECT rid FROM Course_sessions
+    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id
+    INTO room_id;
+
+    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = room_id;
     SELECT INTO numRegs COUNT(*) FROM REGISTERS
     WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id;
     SELECT INTO numRedeems COUNT(*) FROM REDEEMS
     WHERE course_session_id = NEW.course_session_id AND launch_date = NEW.launch_date AND course_id = NEW.course_id;
     IF totalSeatingCapacity >= numRegs + numRedeems + 1 THEN
         RETURN NEW;
-    ELSE 
-        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.'
+    ELSE
+        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger check_seating_capacity_registers
+before insert or update on Registers
+for each row execute function check_seating_capacity_registers();
+
+create or replace function check_seating_capacity_redeems() returns Trigger as $$
+DECLARE
+    numRegs INTEGER;
+    numRedeems INTEGER;
+    totalSeatingCapacity INTEGER;
+    room_id INTEGER;
+BEGIN
+    SELECT rid FROM Course_sessions
+    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id
+    INTO room_id;
+
+    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = room_id;
+    SELECT INTO numRegs COUNT(*) FROM REGISTERS
+    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id;
+    SELECT INTO numRedeems COUNT(*) FROM REDEEMS
+    WHERE course_session_id = NEW.course_session_id AND launch_date = NEW.launch_date AND course_id = NEW.course_id;
+    IF totalSeatingCapacity >= numRegs + numRedeems + 1 THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.';
         RETURN NULL;
     END IF;
 END;
@@ -173,25 +204,6 @@ create trigger check_seating_capacity_redeems
 before insert or update on Redeems
 for each row execute function check_seating_capacity_redeems();
 
-create or replace function check_seating_capacity_redeems() returns Trigger as $$
-DECLARE
-    numRegs INTEGER;
-    numRedeems INTEGER;
-    totalSeatingCapacity INTEGER;
-BEGIN
-    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = NEW.rid;
-    SELECT INTO numRegs COUNT(*) FROM REGISTERS
-    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id;
-    SELECT INTO numRedeems COUNT(*) FROM REDEEMS
-    WHERE course_session_id = NEW.course_session_id AND launch_date = NEW.launch_date AND course_id = NEW.course_id;
-    IF totalSeatingCapacity >= numRegs + numRedeems + 1 THEN
-        RETURN NEW;
-    ELSE 
-        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.'
-        RETURN NULL;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
 
 
 --||------------------ Kim Guan --------------------||--
