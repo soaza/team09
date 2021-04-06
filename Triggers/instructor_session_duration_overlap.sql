@@ -1,9 +1,8 @@
-```
-Trigger 7:
-Each instructor can teach at most one course session at any hour. 
-Each instructor must not be assigned to teach two consecutive course sessions; 
-i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
-```
+-- Trigger 7:
+-- Each instructor can teach at most one course session at any hour. 
+-- Each instructor must not be assigned to teach two consecutive course sessions; 
+-- i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
+
 create function instructor_session_duration_overlap() returns trigger
     language plpgsql
 as

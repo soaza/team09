@@ -100,6 +100,6 @@ Written[] Tested[] 8:Each part-time instructor must not teach more than 30 hours
 Written[] Tested[] 9: duration of course = duration of course session
 
 Additional Triggers:
-Written[] Tested[] 1 :Sid inserted into Course_sessions must be in consecutive order
-Written[] Tested[] 2:Course_session_date must be before depart_date of employee
+Written[X] Tested[X] 10 :Sid inserted into Course_sessions must be in consecutive order
+Written[X] Tested[X] 11:Course_session_date must be before depart_date of employee
 
