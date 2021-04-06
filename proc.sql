@@ -908,6 +908,14 @@ WHERE T.course_id = find_course_id
 )
 $$;
 
+-- 7. get_available_instructors
+-- This routine is used to retrieve the availability information of instructors who could be assigned to teach a specified course. 
+--  inputs: course identifier, start date, and end date. 
+-- output:SETS OF (eid, name,total number of teaching hours
+--  that the instructor has been assigned for this month, day 
+-- (which is within the input date range [start date, end date]), 
+-- and an array of the available hours for the instructor on the specified day. 
+-- output: sorted in ascending order of employee identifier and day, and the array entries are sorted in ascending order of hour.
 create or replace function get_available_instructors(find_course_id integer, find_start_date date, find_end_date date)
     returns TABLE(emp_id integer, emp_name text, teaching_hours integer, day_available date, hours_arr time without time zone[])
     language plpgsql
