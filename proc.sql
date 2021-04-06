@@ -1,6 +1,197 @@
 --||------------------ TRIGGERS --------------------||--
 
 --||------------------ Neil --------------------||--
+-- Trigger 5: Employee overlap Constraints
+-- Employee overlap constraints split into 3 triggers FOR FIRST ISA LAYER
+create trigger administrator_overlap_check
+before insert or update on Administrators
+for each row execute function administrator_overlap_check();
+
+create or replace function administrator_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Cannot add employee to Administrator, is already a Manager or Instructor';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger manager_overlap_check
+before insert or update on Managers
+for each row execute function manager_overlap_check();
+
+create or replace function manager_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Cannot add employee to Manager, is already a Administrator or Instructor';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger Instructor_overlap_check
+before insert or update on Instructors
+for each row execute function instructor_overlap_check();
+
+create or replace function instructor_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Cannot add employee to Instructor, is already a Manager or Administrator';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- For overlap checking between full time and part time FOR SECOND ISA layer
+create trigger full_time_emp_overlap_check
+before insert or update on Full_time_Emp
+for each row execute function full_time_emp_overlap_check();
+
+create or replace function full_time_emp_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Employee is already a Part Time Instructor. Cannot add as a Full time Instructor.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger part_time_emp_overlap_check
+before insert or update on Part_time_Emp
+for each row execute function part_time_emp_overlap_check();
+
+create or replace function part_time_emp_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
+        RAISE NOTICE 'Employee is already a Full Time Instructor. Cannot add as a Part time Instructor.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Additional triggers, just in case external SQL statements manipulate these table
+-- Focus on part/full_time_instructors/emp, for within part time emp and part time instructors, for within full time emp and full time instructors
+-- Here bw stands for between
+
+create trigger bw_part_time_instructor_overlap_check
+before insert or update on Part_time_instructors
+for each row execute function bw_part_time_instructor_overlap_check();
+
+create or replace function bw_part_time_instructor_overlap_check() returns Trigger as $$
+BEGIN
+    IF ((EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid))and not EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid)) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Cannot insert part time instructor'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger bw_full_time_instructor_overlap_check
+before insert or update on Full_time_instructors
+for each row execute function bw_full_time_instructor_overlap_check();
+
+create or replace function bw_full_time_instructor_overlap_check() returns Trigger as $$
+BEGIN
+    IF ((EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) and not EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid)) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Cannot insert full time instructor'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger bw_part_time_Emp_overlap_check
+before insert or update on Part_time_Emp
+for each row execute function bw_part_time_Emp_overlap_check();
+
+create or replace function bw_part_time_Emp_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Cannot insert part time employee'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger bw_full_time_Emp_overlap_check
+before insert or update on Full_time_Emp
+for each row execute function bw_full_time_Emp_overlap_check();
+
+create or replace function bw_full_time_Emp_overlap_check() returns Trigger as $$
+BEGIN
+    IF (EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid) and not EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid)) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Cannot insert full time employee'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger 2: Seating Capacity in Sessions cannot exceed room capacity
+-- Need to make trigger for total_seating_capacity from Rooms>=num_registrations witin the same course_id in Register and Redeems
+create trigger check_seating_capacity_registers
+before insert or update on Registers
+for each row execute function check_seating_capacity_registers();
+
+create or replace function check_seating_capacity_registers() returns Trigger as $$
+DECLARE
+    numRegs INTEGER;
+    numRedeems INTEGER;
+    totalSeatingCapacity INTEGER;
+BEGIN
+    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = NEW.rid;
+    SELECT INTO numRegs COUNT(*) FROM REGISTERS
+    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id;
+    SELECT INTO numRedeems COUNT(*) FROM REDEEMS
+    WHERE course_session_id = NEW.course_session_id AND launch_date = NEW.launch_date AND course_id = NEW.course_id;
+    IF totalSeatingCapacity >= numRegs + numRedeems + 1 THEN
+        RETURN NEW;
+    ELSE 
+        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create trigger check_seating_capacity_redeems
+before insert or update on Redeems
+for each row execute function check_seating_capacity_redeems();
+
+create or replace function check_seating_capacity_redeems() returns Trigger as $$
+DECLARE
+    numRegs INTEGER;
+    numRedeems INTEGER;
+    totalSeatingCapacity INTEGER;
+BEGIN
+    SELECT INTO totalSeatingCapacity seating_capacity FROM Rooms WHERE rid = NEW.rid;
+    SELECT INTO numRegs COUNT(*) FROM REGISTERS
+    WHERE course_session_id = NEW.course_session_id AND launch_date =  NEW.launch_date AND course_id = NEW.course_id;
+    SELECT INTO numRedeems COUNT(*) FROM REDEEMS
+    WHERE course_session_id = NEW.course_session_id AND launch_date = NEW.launch_date AND course_id = NEW.course_id;
+    IF totalSeatingCapacity >= numRegs + numRedeems + 1 THEN
+        RETURN NEW;
+    ELSE 
+        RAISE NOTICE 'There are insufficient seats in the course session, cannot add customer.'
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 
 --||------------------ Kim Guan --------------------||--
@@ -392,35 +583,267 @@ FOR EACH ROW EXECUTE FUNCTION offering_capacity_func();
 
 --||------------------ Neil --------------------||--
 
--- 3. add_customer:
-create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text,
-                              creditcardnum integer, cardexpirydate date, cardcvv integer)
+/*Arrays are 1 based LOL */
+-- 1. add_employee:
+CREATE OR REPLACE PROCEDURE add_employee(empName TEXT, homeAddress TEXT, contactNumber INTEGER, email TEXT, salary DECIMAL, dateJoined DATE, category TEXT, courseAreas TEXT ARRAY, partTime BOOLEAN) AS $$
+DECLARE
+    employeeId INTEGER;
+    numCount INTEGER;
+    arrayItems INTEGER;
+BEGIN
+    SELECT INTO employeeId max(eid) + 1 from Employees;
+    arrayItems := cardinality(courseAreas);
+    numCount := 1;
+    CASE 
+        WHEN category = "MANAGER" THEN
+        INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+        INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+        INSERT INTO Managers VALUES (employeeId);
+        LOOP
+            EXIT WHEN numCount > arrayItems;
+            INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
+            numCount := numCount + 1;
+        END LOOP;
+        WHEN category = "INSTRUCTOR" THEN
+        INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+        IF partTime THEN 
+            INSERT INTO Part_time_instructors VALUES (employeeId);
+            INSERT INTO Part_time_Emp VALUES (employeeId, salary);
+        ELSE 
+            INSERT INTO Full_time_instructors VALUES (employeeId);
+            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+        END IF;
+        INSERT INTO Instructors VALUES (employeeId);
+        LOOP
+            EXIT WHEN numCount > arrayItems;
+            INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
+            numCount := numCount + 1;
+        END LOOP;
+        WHEN category = "ADMINISTRATOR" THEN
+        INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+        INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+        INSERT INTO Administrators VALUES (employeeId);
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- 2. remove_employee:
+CREATE OR REPLACE PROCEDURE remove_employee(employeeId INTEGER, departDate DATE) AS $$
+BEGIN
+    IF EXISTS(SELECT * FROM Administrators WHERE eid = employeeId) THEN
+        IF NOT EXISTS(departDate < any (SELECT registration_deadline FROM Offerings WHERE eid = employeeId)) THEN
+            UPDATE Employees
+            SET depart_date = departDate
+            WHERE eid = employeeId;
+        END IF;
+    END IF;
+    IF EXISTS(SELECT * FROM Instructors WHERE eid = employeeId) THEN
+        IF NOT EXISTS(departDate < any (SELECT session_date FROM Course_Sessions WHERE eid = employeeId)) THEN
+            UPDATE Employees
+            SET depart_date = departDate
+            WHERE eid = employeeId;
+        END IF;
+    END IF;
+    IF EXISTS(SELECT * FROM Managers WHERE eid = employeeId) THEN
+        IF NOT EXISTS(SELECT * FROM Course_area WHERE eid = employeeId) THEN
+            UPDATE Employees
+            SET depart_date = departDate
+            WHERE eid = employeeId;
+        END IF;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- 3. add_customer: 
+create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
     language plpgsql
 as
 $$
 DECLARE
     custId INT;
 BEGIN
-    custId := 11;
+    select into custId max(cust_id) + 1 from Customers;
     INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
-    INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, NULL, custId);
+    INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
 END;
 $$;
 
 
-
--- 4. update_credit_card:
-CREATE OR REPLACE PROCEDURE update_credit_card(custId INT, creditCardNum INTEGER, cardExpiryDate DATE, cardCVV INTEGER)
-AS
-$$
+-- 4. update_credit_card: 
+CREATE OR REPLACE PROCEDURE update_credit_card
+    (custId INT, creditCardNum INTEGER, cardExpiryDate DATE, cardCVV INTEGER)
+    AS $$
 BEGIN
-    UPDATE Credit_cards
-    SET credit_card_num  = creditCardNum,
-        cvv              = cardCVV,
-        card_expiry_date = cardExpiryDate
-    WHERE cust_id = custId;
+    INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- 17. register_session: 
+create or replace procedure register_session(custId INTEGER, launchDate DATE, courseId INTEGER, courseSessionId INTEGER, paymentMethod TEXT)
+as $$
+DECLARE
+    activeCreditCardNum TEXT;
+    buyDate DATE;
+    packageId INTEGER;
+BEGIN
+    -- If registration deadline has not lapsed
+    IF CURRENT_DATE < select registration_deadline from Offerings where launch_date = launchDate and course_id = courseId THEN
+    
+        SELECT INTO activeCreditCardNum credit_card_numFROM Credit_cards
+        WHERE cust_id = cid
+        AND from_date >= ALL(SELECT from_date FROM Credit_cards WHERE cust_id = cid);
+        
+        -- If customer does not already have a course session in that specific course offering under Registers
+        IF  not exists(select cust_id, launch_date, course_id from Registers where cust_id = custId and launch_date = launchDate and course_id = courseId)
+            AND
+        -- If customer does not already have a course session in that specific course offering under Redeems
+            not exists(select credit_card_num, launch_date, course_id from Redeems where launch_date = launchDate and course_id = courseId and credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId))
+            THEN 
+        -- If seating capacity allows, this means that the count of (launch_date, course_id) tuples under Registers and Redeems added together must be < seating Capacity of the room its under
+        -- This is checked under trigger for seating capacity
+            IF paymentMethod = "CREDIT CARD" THEN
+            /* Execute relevant registers SQL statements*/
+                INSERT INTO Registers VALUES (CURRENT_DATE, courseSessionId, launchDate, courseId, custId, activeCreditCardNum)
+            END IF;
+            IF paymentMethod = "REDEMPTION" THEN 
+            /* Execute relevant redemtion SQL statements*/
+                select into activeCreditCardNum, buyDate, packageId from get_active_pactive_package(custId);
+                IF packageId IS NOT NULL THEN
+                    INSERT INTO Redeems VALUES (CURRENT_DATE, buyDate, activeCreditCardNum, packageId, courseSessionId, launchDate, courseId);
+                ELSE 
+                    RAISE NOTICE 'There are no active packages.'
+                END IF;
+            END IF;
+        ELSE
+            RAISE NOTICE 'Customer is already taking course!'
+        END IF;
+    ELSE 
+        RAISE NOTICE 'The registration deadline has already lapsed!'
+    END IF;
+END;
+$$ language plpgsql
+
+
+/*
+    Returns table relating to all course sessions that the customer has registered for that have a session_date > current_date
+    First get all the course sessions from Registers and Redeems table for the customer, then for each of them generate the following information
+    Will need, 
+    Registers and Redeems for 
+        - all the active registered course sessions under customer
+    Course_Sessions for 
+        - eid(for instructorName), 
+        - session_date for sessionDate, 
+        - startTime for sessionStartHour, 
+        - endTime-startTime for sessionDuration
+    Courses for 
+        - title for courseName
+    Course_Offerings for
+        - fees for courseFees
+    Employees for 
+        - emp_name for InstructorName using eid from Course_Sessions
+    */
+-- 18. get_my_registrations: 
+create or replace function get_my_registrations(custId INTEGER)
+returns table(courseName TEXT, courseFees DECIMAL, sessionDate DATE, sessionStartHour TIME, sessionDuration INTERVAL, instructorName TEXT ) 
+AS $$
+DECLARE
+    cursActiveSession CURSOR FOR (
+        select launch_date, course_id, course_session_id
+        from Registers
+        where cust_id = custId and CURRENT_DATE < (select session_date from Course_Sessions where Course_Sessions.launch_date = Registers.launch_date and Course_Sessions.course_id = Registers.course_id and Course_Sessions.course_session_id = Registers.course_session_id)
+    ) union (
+        select launch_date, course_id, course_session_id
+        from Redeems
+        where credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and CURRENT_DATE < (select session_date from Course_Sessions where Course_Sessions.launch_date = Redeems.launch_date and Course_Sessions.course_id = Redeems.course_id and Course_Sessions.course_session_id = Redeems.course_session_id)
+    ) natural join Course_Sessions order by session_date, start_time asc;
+    r RECORD;
+BEGIN
+    OPEN curs;
+    LOOP
+        FETCH curs into r;
+        EXIT WHEN NOT FOUND;
+        select into courseName title from Courses where Courses.course_id = r.course_id;
+        select into courseFees fees from Offerings where Offerings.launch_date = r.launch_date and Offerings.course_id = r.course_id;
+        select into sessionDate session_date from Course_Sessions where Course_Sessions.launch_date = r.launch_date and Course_Sessions.course_id = r.course_id and Course_Sessions.course_session_id = r.course_session_id;
+        select into sessionStartHour extract(hour from start_time) from Course_Sessions where Course_Sessions.launch_date = r.launch_date and Course_Sessions.course_id = r.course_id and Course_Sessions.course_session_id = r.course_session_id;
+        sessionDuration := (select end_time from Course_Sessions where Course_Sessions.launch_date = r.launch_date and Course_Sessions.course_id = r.course_id and Course_Sessions.course_session_id = r.course_session_id) - 
+        (select start_time from Course_Sessions where Course_Sessions.launch_date = r.launch_date and Course_Sessions.course_id = r.course_id and Course_Sessions.course_session_id = r.course_session_id);
+        select into instructorName emp_name from Employees where Employees.eid = (select eid from Course_Sessions where Course_Sessions.launch_date = r.launch_date and Course_Sessions.course_id = r.course_id and Course_Sessions.course_session_id = r.course_session_id);
+        RETURN NEXT;
+    END LOOP;
+    CLOSE curs;
+END;
+$$ language plpgsql
+
+
+/*
+This is talking about changing the session within a course offering. 
+The only difference is between 2 different sessions.
+What I need to check for:
+1. CURRENT_DATE < session_date
+2. Seating capacity, checked by trigger on insert to registrations and redeems
+*/
+-- 19. update_course_sesssion:
+create or replace procedure update_course_session(custId INTEGER, launchDate DATE, courseId INTEGER, courseSessionId INTEGER)
+as $$
+BEGIN
+    /*Checking if the registration time has lapsed and if the customer has takent the course before, then update accordingly, the seating trigger will check for available seat.*/
+    IF CURRENT_DATE < select session_date from Course_Sessions where launch_date = launchDate and course_id = courseId and course_session_id = courseSessionId THEN
+        
+        SELECT INTO activeCreditCardNum credit_card_numFROM Credit_cards
+        WHERE cust_id = cid
+        AND from_date >= ALL(SELECT from_date FROM Credit_cards WHERE cust_id = cid);
+
+        /* Check where the customer exists with this current session, Redeems or Registration Table and update accordingly */
+        -- If the customer did a registration then
+        IF exists(select * from Registers where cust_id = custId and launch_date = launchDate and course_id = courseId )  then
+            UPDATE Registers
+            SET course_session_id = courseSessionId
+            WHERE cust_id = custId AND launch_date = launchDate AND course_id = courseID;
+        -- The where condition here is enough to uniquely identify a redeems record since these 3 attributes are unique.
+        ELSIF exists(select * from Redeems where credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and launch_date = launchDate and course_id = courseId) then 
+            UPDATE Redeems
+            SET course_session_id
+            WHERE credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and launch_date = launchDate and course_id = courseId;
+        END IF;
+    END IF;
+END;
+$$ language plpgsql
+
+-- 20. cancel_registration:
+create or replace procedure cancel_registration(custId INTEGER, launchDate DATE, courseId INTEGER)
+as $$
+DECLARE 
+    refundAmount DECIMAL;
+    packageCredit INTEGER;
+    packageId INTEGER;
+    courseSessionId INTEGER;
+BEGIN
+    IF exists(select * from Registers where cust_id = custId and launch_date = launchDate and course_id = courseId)  then
+        select into courseSessionId course_session_id from Registers where cust_id = custId and launch_date = launchDate and course_id = courseId;
+        IF (extract(day from select session_date from Course_Sessions where launch_date = launchDate and course_id = courseId and course_session_id = courseSessionId)) - (extract(day from CURRENT_DATE)) >= 7 then
+            select into refundAmount fees*0.9 from Offerings where launch_date = launchDate and course_id = courseId;
+        ELSE
+            refundAmount := 0;
+        END IF;
+        packageCredit := NULL;
+        packageId := NULL;
+        INSERT INTO Cancels VALUES (CURRENT_DATE, refundAmount, packageCredit, packageId, courseSessionId, launchDate, courseId, custId);
+    ELSIF exists(select * from Redeems where credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and launch_date = launchDate and course_id = courseId) then 
+        select into courseSessionId, packageId course_session_id, package_id from Redeems where credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and launch_date = launchDate and course_id = courseId;
+        IF (extract(day from select session_date from Course_Sessions where launch_date = launchDate and course_id = courseId and course_session_id = courseSessionId)) - (extract(day from CURRENT_DATE)) >= 7 then
+            packageCredit := 1;
+        ELSE
+            packageCredit := 0;
+        END IF;
+        refundAmount := NULL;
+        INSERT INTO Cancels VALUES (CURRENT_DATE, refundAmount, packageCredit, packageId, courseSessionId, launchDate, courseId, custId);
+    END IF;
+END;
+$$ language plpgsql
 
 
 --||------------------ Kim Guan --------------------||--
