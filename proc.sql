@@ -1466,15 +1466,14 @@ AS $$
 
         END LOOP;
 
+        -- if no sessions info provided, seating capacity will be 0
+        SELECT COALESCE(seating_capacity, 0) FROM Offerings WHERE launch_date = offering_launch_date AND course_id = cid INTO total_seating_capacity;
+
         -- 'Note that the seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.'
         IF offering_target_number_registrations > total_seating_capacity THEN
             RAISE NOTICE 'Note: Target number of registrations greater than seat capacity, addition of course offering is rollbacked.';
             ROLLBACK;
         END IF;
-
-        UPDATE Offerings
-        SET seating_capacity = total_seating_capacity
-        WHERE launch_date = offering_launch_date AND course_id = cid;
 
         COMMIT;
 
@@ -1534,12 +1533,12 @@ DECLARE
         WHERE not exists (
             SELECT 1
             FROM Registers R
-            WHERE registration_date BETWEEN (now()::DATE - INTERVAL '6 months') AND now()::DATE
+            WHERE registration_date BETWEEN (date_trunc('month', now()::DATE - INTERVAL '5 months')) AND now()::DATE
             AND C.cust_id = R.cust_id
         ) AND not exists (
             SELECT 1
             FROM Redeems RD INNER JOIN Credit_cards CC ON RD.credit_card_num = CC.credit_card_num
-            WHERE redeem_date BETWEEN (now()::DATE - INTERVAL '6 months') AND now()::DATE
+            WHERE redeem_date BETWEEN (date_trunc('month', now()::DATE - INTERVAL '5 months')) AND now()::DATE
             AND C.cust_id = CC.cust_id
         )
         ORDER BY cust_id ASC);
@@ -1558,8 +1557,15 @@ BEGIN
         -- has not registered/redeemed any offerings, interested in all areas
         IF (SELECT count(*) FROM Registers WHERE cust_id = r.cust_id) = 0 AND
         (SELECT count(*) FROM Redeems INNER JOIN Credit_cards ON Redeems.credit_card_num = Credit_cards.credit_card_num WHERE cust_id = r.cust_id) = 0 THEN
-            FOR course_offering_info IN (SELECT * FROM Offerings O INNER JOIN Courses C ON O.course_id = C.course_id
-                WHERE registration_deadline >= now()::DATE ORDER BY registration_deadline ASC)
+            FOR course_offering_info IN
+                (SELECT * FROM Offerings O INNER JOIN Courses C ON O.course_id = C.course_id
+                WHERE launch_date <= NOW()::DATE
+                AND registration_deadline >= now()::DATE
+                AND seating_capacity > (
+                    (SELECT count(*) FROM Registers WHERE Registers.launch_date = O.launch_date AND Registers.course_id = O.course_id) +
+                    (SELECT count(*) FROM Redeems WHERE Redeems.launch_date = O.launch_date AND Redeems.course_id = O.course_id)
+                )
+                ORDER BY registration_deadline ASC)
             LOOP
                 course_area := course_offering_info.course_area_name;
                 cid := course_offering_info.course_id;
@@ -1578,7 +1584,8 @@ BEGIN
                     SELECT course_id, redeem_date FROM Redeems INNER JOIN Credit_cards ON Redeems.credit_card_num = Credit_cards.credit_card_num WHERE cust_id = r.cust_id)
 
                 SELECT * FROM Offerings INNER JOIN Courses ON Offerings.course_id = Courses.course_id
-                WHERE registration_deadline >= now()::DATE
+                WHERE launch_date <= NOW()::DATE
+                AND registration_deadline >= now()::DATE
                 AND Courses.course_area_name IN (
                     SELECT course_area_name -- impt that course_area_name not distinct so that we get from 3 most recent course offering registered
                     FROM RegistersRedeem INNER JOIN Courses ON RegistersRedeem.course_id = Courses.course_id
@@ -1594,6 +1601,12 @@ BEGIN
                     SELECT course_id, launch_date
                     FROM Redeems INNER JOIN Credit_cards on Redeems.credit_card_num = Credit_cards.credit_card_num
                     WHERE Credit_cards.cust_id = customer_id
+                )
+
+                -- check that total num registrations still less than seating capacity
+                AND seating_capacity > (
+                    (SELECT count(*) FROM Registers WHERE Registers.launch_date = Offerings.launch_date AND Registers.course_id = Offerings.course_id) +
+                    (SELECT count(*) FROM Redeems WHERE Redeems.launch_date = Offerings.launch_date AND Redeems.course_id = Offerings.course_id)
                 )
                 ORDER BY registration_deadline ASC)
 
