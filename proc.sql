@@ -179,6 +179,211 @@ execute procedure course_session_date_before_depart_date();
 
 --||------------------ Constance --------------------||--
 
+-- Trigger 4: Each course offering has a start date and an end date that
+-- is determined by the dates of its earliest and latest sessions, respectively
+CREATE OR REPLACE FUNCTION offering_start_end_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    curr_start_date DATE;
+    curr_end_date DATE;
+
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        SELECT session_date FROM Course_Sessions
+        WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id
+        ORDER BY session_date ASC LIMIT 1 INTO curr_start_date;
+
+        SELECT session_date FROM Course_Sessions
+        WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id
+        ORDER BY session_date DESC LIMIT 1 INTO curr_end_date;
+
+        UPDATE Offerings SET actual_start_date = curr_start_date, end_date = curr_end_date
+        WHERE launch_date = OLD.launch_date and course_id = OLD.course_id;
+
+        RETURN OLD;
+
+    ELSIF  (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+        SELECT actual_start_date FROM Offerings
+        WHERE launch_date = NEW.launch_date and course_id = NEW.course_id INTO curr_start_date;
+
+        SELECT end_date FROM Offerings
+        WHERE launch_date = NEW.launch_date and course_id = NEW.course_id INTO curr_end_date;
+
+        IF curr_start_date IS NULL AND curr_end_date IS NULL THEN
+            UPDATE Offerings SET actual_start_date = NEW.session_date, end_date = NEW.session_date
+            WHERE launch_date = NEW.launch_date and course_id = NEW.course_id;
+
+        ELSIF (NEW.session_date < curr_start_date) THEN
+            UPDATE Offerings SET actual_start_date = NEW.session_date
+            WHERE launch_date = NEW.launch_date and course_id = NEW.course_id;
+
+        ELSIF (NEW.session_date > curr_end_date) THEN
+            UPDATE Offerings SET end_date = NEW.session_date
+            WHERE launch_date = NEW.launch_date and course_id = NEW.course_id;
+        END IF;
+
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER offering_start_end_trigger
+AFTER INSERT OR UPDATE OR DELETE ON Course_Sessions
+FOR EACH ROW EXECUTE FUNCTION offering_start_end_func();
+
+-- Trigger 9: duration of course = duration of course session and also checks that deadline is not over yet.
+-- Before inserting/updating into sessions, duration of end time should be start time + end time
+CREATE OR REPLACE FUNCTION duration_session_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    session_duration INTEGER;
+    offering_registration_deadline DATE;
+BEGIN
+    SELECT duration FROM Courses WHERE course_id = NEW.course_id INTO session_duration;
+
+    SELECT registration_deadline FROM Offerings WHERE launch_date = NEW.launch_date AND course_id = NEW.course_id INTO offering_registration_deadline;
+
+    IF NEW.start_time + session_duration * '1hour'::interval <> NEW.end_time THEN
+        RAISE NOTICE 'Note: Not updated/inserted as the session duration does not match the course duration.';
+        RETURN NULL;
+
+    ELSIF offering_registration_deadline < NOW()::DATE THEN
+        RAISE NOTICE 'Note: Not updated/inserted as the offering registration deadline is over.';
+        RETURN NULL;
+
+    ELSE
+        RETURN NEW;
+
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER duration_session_trigger
+BEFORE INSERT OR UPDATE ON Course_Sessions
+FOR EACH ROW EXECUTE FUNCTION duration_session_func();
+
+CREATE OR REPLACE FUNCTION max_one_session_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    num_registered INTEGER;
+    num_redeemed INTEGER;
+    customer_id INTEGER;
+
+BEGIN
+
+    SELECT cust_id FROM Credit_cards WHERE credit_card_num = NEW.credit_card_num INTO customer_id;
+
+    SELECT count(*) FROM Registers RG INNER JOIN Credit_cards ON RG.credit_card_num = Credit_cards.credit_card_num
+    WHERE RG.launch_date = NEW.launch_date AND RG.course_id = NEW.course_id AND Credit_cards.cust_id = customer_id
+    INTO num_registered;
+
+    SELECT count(*) FROM Redeems RD INNER JOIN Credit_cards CC ON RD.credit_card_num = CC.credit_card_num
+    WHERE RD.launch_date = NEW.launch_date AND RD.course_id = NEW.course_id AND CC.cust_id = customer_id
+    INTO num_redeemed;
+
+    IF num_registered + num_redeemed <> 0 THEN
+        RAISE NOTICE 'Note: Not updated/inserted as customer can only register for at most one session for each offering.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER max_one_session_redeem_trigger
+BEFORE INSERT OR UPDATE ON Redeems
+FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
+
+CREATE TRIGGER max_one_session_register_trigger
+BEFORE INSERT OR UPDATE ON Registers
+FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
+
+-- Trigger 1: customers must register before registration_deadline Offerings
+CREATE OR REPLACE FUNCTION reg_bef_deadline_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    reg_deadline DATE;
+BEGIN
+    SELECT registration_deadline
+    FROM Offerings O
+    WHERE O.launch_date = NEW.launch_date AND O.course_id = NEW.course_id
+    INTO reg_deadline;
+
+    IF NEW.registration_date > reg_deadline THEN
+        RAISE NOTICE 'Note: Not updated/inserted as registration deadline is over.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER reg_bef_deadline_trigger
+BEFORE INSERT OR UPDATE ON Registers
+FOR EACH ROW EXECUTE FUNCTION reg_bef_deadline_func();
+
+CREATE OR REPLACE FUNCTION redeem_bef_deadline_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    reg_deadline DATE;
+BEGIN
+    SELECT registration_deadline
+    FROM Offerings O
+    WHERE O.launch_date = NEW.launch_date AND O.course_id = NEW.course_id
+    INTO reg_deadline;
+
+    IF NEW.redeem_date > reg_deadline THEN
+        RAISE NOTICE 'Note: Not updated/inserted as registration deadline is over.';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER redeem_bef_deadline_trigger
+BEFORE INSERT OR UPDATE ON Redeems
+FOR EACH ROW EXECUTE FUNCTION redeem_bef_deadline_func();
+
+CREATE OR REPLACE FUNCTION offering_capacity_func() RETURNS TRIGGER
+AS $$
+DECLARE
+    offering_seating_capacity INTEGER;
+BEGIN
+    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+        SELECT sum(seating_capacity)
+        FROM Course_Sessions CS INNER JOIN Rooms R ON CS.rid = R.rid
+        WHERE CS.launch_date = NEW.launch_date AND CS.course_id = NEW.course_id
+        INTO offering_seating_capacity;
+
+        IF offering_seating_capacity IS NULL THEN
+            offering_seating_capacity := 0;
+        END IF;
+
+        UPDATE Offerings SET seating_capacity = offering_seating_capacity
+        WHERE launch_date = NEW.launch_date AND course_id = NEW.course_id;
+        RETURN NEW;
+    ELSE
+        SELECT sum(seating_capacity)
+        FROM Course_Sessions CS INNER JOIN Rooms R ON CS.rid = R.rid
+        WHERE CS.launch_date = OLD.launch_date AND CS.course_id = OLD.course_id
+        INTO offering_seating_capacity;
+
+        IF offering_seating_capacity IS NULL THEN
+            offering_seating_capacity := 0;
+        END IF;
+
+        UPDATE Offerings SET seating_capacity = offering_seating_capacity
+        WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id;
+        RETURN OLD;
+    END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER offering_capacity_trigger
+AFTER INSERT OR UPDATE OR DELETE ON Course_sessions
+FOR EACH ROW EXECUTE FUNCTION offering_capacity_func();
 
 --||------------------ Esmanda --------------------||--
 
@@ -616,6 +821,412 @@ $$;
 
 
 --||------------------ Constance --------------------||--
+
+-- q9
+-- Retrieves availability info of rooms for specific range of dates.
+-- NOTE: they used "day" but i assume they are talking about date.
+-- The output is sorted in ascending order of room identifier and day, and array entries are sorted in ascending order of hour.
+-- IDEA: For each room, loop through each date and find the sessions for that rm and date.
+-- Generate a array of 24 hours, remove (start, end hour) found in sessions
+CREATE OR REPLACE FUNCTION get_available_rooms(start_date DATE, end_date DATE)
+RETURNS TABLE (room_id INTEGER, seating_capacity INTEGER, date_available DATE,
+hours_available TIME[]) AS $$
+DECLARE
+    curs_room CURSOR FOR (SELECT * FROM Rooms ORDER BY rid ASC); -- ensures sorted by room id first
+    r RECORD;
+
+    curs_date CURSOR FOR (
+        SELECT * FROM generate_series(start_date::timestamp, end_date::timestamp, '1 day')
+    ); -- date generated in increasing order, so ensures sorted when looping through it
+    d DATE;
+
+    hours_not_available TIME[];
+    start_hour INTEGER;
+    end_hour INTEGER;
+    end_minute INTEGER;
+
+    session_info Course_sessions%ROWTYPE;
+
+BEGIN
+    OPEN curs_room;
+    LOOP
+        FETCH curs_room into r;
+        EXIT WHEN NOT FOUND;
+        room_id := r.rid;
+        seating_capacity := r.seating_capacity;
+
+        OPEN curs_date;
+        LOOP
+            FETCH curs_date into d;
+            EXIT WHEN NOT FOUND;
+            date_available := d::date;
+            SELECT ARRAY(
+                select * from generate_series (
+                    timestamp '2021-03-03 00:00', timestamp '2021-03-03 23:59', interval '1h'))::time[] INTO hours_available;
+
+            -- loop through sessions that are using the room at this date to extract out timings that the room is in use
+            FOR session_info IN (SELECT * FROM Course_Sessions WHERE rid = r.rid AND session_date = d)
+            LOOP
+                SELECT extract(hour from session_info.start_time) INTO start_hour;
+                SELECT extract(hour from session_info.end_time) INTO end_hour;
+                SELECT extract(minute from session_info.end_time) INTO end_minute;
+
+                IF end_minute = 0 THEN
+                    with Hours_Unavailable as
+                            (SELECT '00:00:00'::time + x * '1 hour'::interval
+                            FROM generate_series(start_hour, end_hour - 1) as t(x)) -- NOTE: exclusive of end_hour!!
+                    SELECT ARRAY(SELECT * FROM Hours_Unavailable) INTO hours_not_available;
+                ELSE
+                    with Hours_Unavailable as
+                            (SELECT '00:00:00'::time + x * '1 hour'::interval
+                            FROM generate_series(start_hour, end_hour) as t(x)) -- NOTE: inclusive of end_hour!!
+                    SELECT ARRAY(SELECT * FROM Hours_Unavailable) INTO hours_not_available;
+                END IF;
+
+                -- Result of this will not be sorted
+                select array(select unnest(hours_available) except select unnest(hours_not_available)) into hours_available;
+            END LOOP;
+
+            -- Sorts array in ascending order
+            SELECT array(
+                SELECT DISTINCT UNNEST(
+                    hours_available
+                ) ORDER BY 1) INTO hours_available;
+
+            -- looked through all sessions for this room, for this date, add to table
+            RETURN NEXT;
+        END LOOP;
+        CLOSE curs_date;
+
+    END LOOP;
+    CLOSE curs_room;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- Q24 --
+-- add_session: This routine is used to add a new session to a course offering.
+-- The inputs to the routine include the following: course offering identifier, new session number, new session day,
+-- new session start hour, instructor identifier for new session, and room identifier for new session.
+-- If the course offering’s registration deadline has not passed and the the addition request is valid,
+-- the routine will process the request with the necessary updates.
+CREATE OR REPLACE PROCEDURE add_session(offering_launch_date DATE, cid INTEGER, new_session_number INTEGER,
+new_session_day DATE, new_session_start_hour TIME, instructor_id INTEGER, room_id INTEGER)
+AS $$
+DECLARE
+    end_hour TIME;
+
+BEGIN
+    SELECT new_session_start_hour + duration * interval '1 hour' FROM Courses WHERE course_id = cid INTO end_hour;
+
+    INSERT INTO Course_sessions VALUES (new_session_number, room_id, instructor_id, new_session_day, new_session_start_hour, end_hour, offering_launch_date, cid);
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- Q10 --
+-- Adds course offering and sessions if any.
+-- Assign instructors if valid, else abort whole function.
+-- Seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.
+-- Input sessions_info includes: session_date DATE, start_time TIME, rid INTEGER
+CREATE OR REPLACE PROCEDURE add_course_offering(offering_launch_date DATE, cid INTEGER,
+    offering_fees DECIMAL, offering_registration_deadline DATE, admin_eid INTEGER, offering_target_number_registrations INTEGER,
+    sessions_info TEXT[][])
+AS $$
+    DECLARE
+        total_seating_capacity INTEGER;
+        info TEXT[];
+
+        session_number INTEGER;
+        session_date DATE;
+        start_time TIME;
+        room_id INTEGER;
+
+        num_available_instructors INTEGER;
+        instructor_id INTEGER;
+
+    BEGIN
+        INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
+        VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
+
+        session_number := 0;
+        total_seating_capacity := 0;
+
+        FOREACH info SLICE 1 IN ARRAY sessions_info
+        LOOP
+            session_number := session_number + 1;
+            session_date := info[1]::DATE;
+            start_time := TO_TIMESTAMP(info[2], 'HH24:MI')::TIME;
+            room_id := info[3]::INTEGER;
+
+            SELECT (seating_capacity + total_seating_capacity) FROM Rooms where rid = room_id INTO total_seating_capacity;
+
+            SELECT count(*) from find_instructors(cid, session_date, start_time) INTO num_available_instructors;
+            IF num_available_instructors = 0 THEN
+                RAISE NOTICE 'Note: Unable to assign instructors, addition of course offering is rollbacked.';
+                ROLLBACK;
+            ELSE
+                SELECT eid FROM find_instructors(cid, session_date, start_time) ORDER BY eid ASC LIMIT 1 INTO instructor_id;
+
+                CALL add_session(offering_launch_date, cid, session_number, session_date, start_time, instructor_id, room_id);
+
+            END IF;
+
+        END LOOP;
+
+        -- 'Note that the seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.'
+        IF offering_target_number_registrations > total_seating_capacity THEN
+            RAISE NOTICE 'Note: Target number of registrations greater than seat capacity, addition of course offering is rollbacked.';
+            ROLLBACK;
+        END IF;
+
+        UPDATE Offerings
+        SET seating_capacity = total_seating_capacity
+        WHERE launch_date = offering_launch_date AND course_id = cid;
+
+        COMMIT;
+
+    END;
+$$ LANGUAGE plpgsql;
+
+-- Q11
+-- package_id is auto generated in this function
+CREATE OR REPLACE PROCEDURE add_course_package(course_package_name TEXT, num_free_registrations INTEGER, sale_start_date DATE,
+    sale_end_date DATE, price DECIMAL)
+AS $$
+DECLARE
+    pkg_id INTEGER;
+    num_pkgs INTEGER;
+BEGIN
+    -- increment one from current max package id
+    SELECT count(*) FROM Course_packages INTO num_pkgs;
+    IF num_pkgs = 0 THEN
+        select 1 INTO pkg_id;
+    ELSE
+        SELECT max(package_id) + 1 FROM Course_packages INTO pkg_id;
+
+    INSERT INTO Course_packages
+    values (pkg_id, sale_start_date, sale_end_date, course_package_name, price, num_free_registrations);
+    END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- Q12
+-- available for sale (i.e. current date is between the start date and end date inclusive)
+-- package name, number of free course sessions, end date for promotional package, and the price of the package.
+CREATE OR REPLACE FUNCTION get_available_course_packages()
+RETURNS TABLE(course_package_name TEXT, num_free_registrations INTEGER, sale_end_date DATE,
+    price DECIMAL) AS $$
+    SELECT course_package_name, num_free_registrations, sale_end_date, price
+    FROM Course_packages
+    WHERE now()::DATE BETWEEN sale_start_date AND sale_end_date;
+$$ LANGUAGE sql;
+
+-- Q26. promote_courses: This routine is used to identify potential course offerings that could be of interest to inactive customers.
+-- Active customer: customer has registered for some course offering in the last six months (inclusive of the current month), else inactive customer.
+-- A course area A is of interest to a customer C if there is some course offering in area A among the three most recent course offerings registered by C.
+-- If a customer has not yet registered for any course offering, we assume that every course area is of interest to that customer.
+-- The routine returns a table of records consisting of the following information for each inactive customer: customer identifier,
+-- customer name, course area A that is of interest to the customer, course identifier of a course C in area A, course title of C,
+-- launch date of course offering of course C that still accepts registrations, course offering’s registration deadline, and fees for the course offering.
+-- The output is sorted in ascending order of customer identifier and course offering’s registration deadline.
+
+CREATE OR REPLACE FUNCTION promote_courses()
+RETURNS TABLE(customer_id INTEGER, customer_name TEXT, course_area TEXT, cid INTEGER, course_title TEXT,
+offering_launch_date DATE, offering_registration_deadline DATE, offering_fees DECIMAL)
+AS $$
+DECLARE
+    curs_inactive_cust CURSOR FOR
+        (SELECT cust_id, cust_name FROM Customers C
+        WHERE not exists (
+            SELECT 1
+            FROM Registers R
+            WHERE registration_date BETWEEN (now()::DATE - INTERVAL '6 months') AND now()::DATE
+            AND C.cust_id = R.cust_id
+        ) AND not exists (
+            SELECT 1
+            FROM Redeems RD INNER JOIN Credit_cards CC ON RD.credit_card_num = CC.credit_card_num
+            WHERE redeem_date BETWEEN (now()::DATE - INTERVAL '6 months') AND now()::DATE
+            AND C.cust_id = CC.cust_id
+        )
+        ORDER BY cust_id ASC);
+
+    r RECORD;
+    course_offering_info RECORD;
+BEGIN
+    OPEN curs_inactive_cust;
+    LOOP
+        FETCH curs_inactive_cust into r;
+        EXIT WHEN NOT FOUND;
+
+        customer_id := r.cust_id;
+        customer_name := r.cust_name;
+
+        -- has not registered/redeemed any offerings, interested in all areas
+        IF (SELECT count(*) FROM Registers WHERE cust_id = r.cust_id) = 0 AND
+        (SELECT count(*) FROM Redeems INNER JOIN Credit_cards ON Redeems.credit_card_num = Credit_cards.credit_card_num WHERE cust_id = r.cust_id) = 0 THEN
+            FOR course_offering_info IN (SELECT * FROM Offerings O INNER JOIN Courses C ON O.course_id = C.course_id
+                WHERE registration_deadline >= now()::DATE ORDER BY registration_deadline ASC)
+            LOOP
+                course_area := course_offering_info.course_area_name;
+                cid := course_offering_info.course_id;
+                course_title := course_offering_info.title;
+                offering_launch_date := course_offering_info.launch_date;
+                offering_registration_deadline := course_offering_info.registration_deadline;
+                offering_fees := course_offering_info.fees;
+                RETURN NEXT;
+            END LOOP;
+
+        ELSE
+            FOR course_offering_info IN
+                (WITH RegistersRedeem AS
+                    (SELECT course_id, registration_date FROM Registers WHERE cust_id = r.cust_id
+                    UNION ALL
+                    SELECT course_id, redeem_date FROM Redeems INNER JOIN Credit_cards ON Redeems.credit_card_num = Credit_cards.credit_card_num WHERE cust_id = r.cust_id)
+
+                SELECT * FROM Offerings INNER JOIN Courses ON Offerings.course_id = Courses.course_id
+                WHERE registration_deadline >= now()::DATE
+                AND Courses.course_area_name IN (
+                    SELECT course_area_name -- impt that course_area_name not distinct so that we get from 3 most recent course offering registered
+                    FROM RegistersRedeem INNER JOIN Courses ON RegistersRedeem.course_id = Courses.course_id
+                    ORDER BY registration_date DESC LIMIT 3)
+
+                -- removes offerings that are already registered/redeemed
+                AND (Offerings.course_id, Offerings.launch_date) NOT IN (
+                    SELECT course_id, launch_date
+                    FROM Registers
+                    WHERE Registers.cust_id = customer_id
+                )
+                AND (Offerings.course_id, Offerings.launch_date) NOT IN (
+                    SELECT course_id, launch_date
+                    FROM Redeems INNER JOIN Credit_cards on Redeems.credit_card_num = Credit_cards.credit_card_num
+                    WHERE Credit_cards.cust_id = customer_id
+                )
+                ORDER BY registration_deadline ASC)
+
+            LOOP
+                course_area := course_offering_info.course_area_name;
+                cid := course_offering_info.course_id;
+                course_title := course_offering_info.title;
+                offering_launch_date := course_offering_info.launch_date;
+                offering_registration_deadline := course_offering_info.registration_deadline;
+                offering_fees := course_offering_info.fees;
+                RETURN NEXT;
+            END LOOP;
+        END IF;
+    END LOOP;
+    CLOSE curs_inactive_cust;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Q27. top_packages: This routine is used to find the top N course packages in terms of the total number of packages sold for this year
+-- (i.e., the package’s start date is within this year). The input to the routine is a positive integer number N.
+-- The routine returns a table of records consisting of the following information for each of the top N course packages:
+-- package identifier, number of included free course sessions, price of package, start date, end date, and number of packages sold.
+-- The output is sorted in descending order of number of packages sold followed by descending order of price of package.
+-- In the event that there are multiple packages that tie for the top Nth position, all these packages should be included in the output records;
+-- thus, the output table could have more than N records. It is also possible for the output table to have fewer than N records if N is larger than the number of packages launched this year.
+
+-- number of packages sold DESC, price package DESC
+-- output can have >N records if there is a tie, or <N records
+CREATE OR REPLACE FUNCTION top_packages(N INTEGER)
+RETURNS TABLE(package_identifier INTEGER, num_free_course_sessions INTEGER, price_pkg DECIMAL, pkg_start_date DATE, pkg_end_date DATE,
+num_sold INTEGER)
+AS $$
+DECLARE
+    num_pkgs_sold INTEGER;
+
+    curs CURSOR FOR
+        (SELECT Buys.package_id, num_free_registrations, price, sale_start_date, sale_end_date, count(*) AS num_pkgs_sold
+        FROM (Buys INNER JOIN Course_packages ON Buys.package_id = Course_packages.package_id)
+        WHERE date_part('year', sale_start_date) = date_part('year', now())
+        GROUP BY Buys.package_id, num_free_registrations, price, sale_start_date, sale_end_date
+        ORDER BY num_pkgs_sold DESC, price DESC);
+
+    r RECORD;
+    num_pkgs INTEGER;
+    prev_num_sold INTEGER;
+    prev_price DECIMAL;
+BEGIN
+    OPEN curs;
+    num_pkgs := 0;
+    prev_num_sold := 0;
+    prev_price := 0;
+
+    LOOP
+        FETCH curs into r;
+        EXIT WHEN NOT FOUND;
+        num_pkgs := num_pkgs + 1;
+
+        IF (prev_num_sold = r.num_pkgs_sold AND prev_price = r.price) OR num_pkgs <= N THEN
+            prev_num_sold := r.num_pkgs_sold;
+            prev_price := r.price;
+
+            package_identifier := r.package_id;
+            num_free_course_sessions := r.num_free_registrations;
+            price_pkg := r.price;
+            pkg_start_date := r.sale_start_date;
+            pkg_end_date := r.sale_end_date;
+            num_sold := r.num_pkgs_sold;
+            RETURN NEXT;
+
+        ELSE
+            EXIT;
+        END IF;
+
+    END LOOP;
+    CLOSE curs;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Q28 popular_courses: This routine is used to find the popular courses offered this year
+-- (i.e., start date is within this year). A course is popular if the course has at least two offerings this year,
+-- and for every pair of offerings of the course this year, the offering with the later start date has a higher number of registrations
+-- than that of the offering with the earlier start date.
+-- The routine returns a table of records consisting of the following information for each popular course:
+-- course identifier, course title, course area, number of offerings this year, and number of registrations for the latest offering this year.
+-- The output is sorted in descending order of the number of registrations for the latest offering this year followed by in ascending order of course identifier.
+
+-- number of registrations: so have to look at both registers and redeems to find the number of registrations
+-- DESC num reg, ASC course identifier
+CREATE OR REPLACE FUNCTION popular_courses()
+RETURNS TABLE(course_identifier INTEGER, course_title TEXT, course_area TEXT, num_offerings INTEGER, num_registrations INTEGER)
+AS $$
+    WITH RegistersRedeem AS
+        (SELECT Registers.course_id, launch_date, registration_date FROM Registers
+        UNION ALL
+        SELECT Redeems.course_id, launch_date, redeem_date FROM Redeems),
+
+    -- for OfferingsRegistrations, we are trying to get the offerings and corr number of registration
+        OfferingsRegistrations AS
+        (SELECT RR.course_id, RR.launch_date, actual_start_date, count(*) as num_regs
+        FROM RegistersRedeem RR INNER JOIN Offerings O
+            ON RR.course_id = O.course_id AND RR.launch_date = O.launch_date
+        WHERE (RR.course_id) IN
+            (SELECT course_id
+            FROM Offerings
+            WHERE date_part('year', actual_start_date) = date_part('year', now()) -- this year
+            GROUP BY course_id
+            HAVING count(*) >= 2 -- at least 2 offerings this year
+            )
+        GROUP BY (RR.course_id, RR.launch_date, actual_start_date)
+        )
+
+    -- check for every pair, offering w later start date higher number of registration
+    SELECT OR0.course_id, title, course_area_name, count(*), MAX(num_regs) as max_num_regs
+    FROM OfferingsRegistrations OR0 INNER JOIN Courses ON OR0.course_id = Courses.course_id
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM OfferingsRegistrations OR1, OfferingsRegistrations OR2
+        WHERE OR1.course_id = OR0.course_id AND OR2.course_id = OR0.course_id
+        AND ((OR1.actual_start_date < OR2.actual_start_date AND OR1.num_regs >= OR2.num_regs)
+        OR (OR1.actual_start_date > OR2.actual_start_date AND OR1.num_regs <= OR2.num_regs))
+    )
+    GROUP BY OR0.course_id, title, course_area_name
+    ORDER BY max_num_regs DESC, course_id ASC;
+
+$$ LANGUAGE sql;
 
 
 --||------------------ Esmanda --------------------||--
