@@ -1,7 +1,6 @@
-```
-Trigger 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct 
-at most 1 course session at any time
-```
+-- Trigger 3: overlapping of start_time-end_time in CourseSessions as each room used to conduct 
+-- at most 1 course session at any time
+
 create or replace function course_session_duration_overlap() returns trigger
     language plpgsql
 as
@@ -38,5 +37,8 @@ BEGIN
 END;
 $$;
 
-alter function course_session_duration_overlap() owner to kimguan;
-
+create trigger course_session_duration_overlap_trigger
+    before insert or update
+    on course_sessions
+    for each row
+execute procedure course_session_duration_overlap();

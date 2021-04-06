@@ -1,6 +1,4 @@
-``` 
-Trigger 6: Instructor who is assigned to teach a course session must be specialized in that course area
-```
+-- Trigger 6: Instructor who is assigned to teach a course session must be specialized in that course area
 CREATE OR REPLACE FUNCTION instructor_specialise_session() RETURNS TRIGGER AS $$
 BEGIN 
     IF(NEW.eid <> OLD.eid) THEN 
