@@ -2,11 +2,12 @@
 -- The inputs to the routine include the following: 
 -- session date, session start hour, and session duration. 
 -- The routine returns a table of room identifiers.
-CREATE OR REPLACE FUNCTION find_rooms
--- ASSUMPTION: DURATION IN HOURS
-(IN find_session_date DATE,IN find_start_time TIME,IN find_duration INTEGER)
-RETURNS TABLE(rid INTEGER) AS $$
-    SELECT R.rid
+create function find_rooms(find_session_date date, find_start_time time without time zone, find_duration integer)
+    returns TABLE(rid integer)
+    language sql
+as
+$$
+SELECT R.rid
     FROM Rooms R
     -- exclude rooms occupied during start time
     -- and rooms occupied where duration overlaps
@@ -15,13 +16,21 @@ RETURNS TABLE(rid INTEGER) AS $$
     FROM Course_Sessions C
     WHERE C.session_date = find_session_date
     AND (
-    (C.start_time < find_start_time and find_start_time < C.end_time)
-    OR
-    -- and rooms occupied where duration overlaps
-    (extract(hour from start_time) + find_duration > C.start_time)
-    );
-END
-$$ LANGUAGE SQL
+        -- start time is between existing sessions
+            (C.start_time <= find_start_time and find_start_time < C.end_time)
+            OR
+            -- end time is between existing sessions
+            (
+                        extract(hour from find_start_time) + find_duration > extract(hour from C.start_time)
+                    AND
+                        extract(hour from C.end_time) >= extract(hour from find_start_time) + find_duration
+                )
+        );
+$$;
 
--- Testcases
+
+
+
+
+
 
