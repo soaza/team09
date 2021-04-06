@@ -312,7 +312,7 @@ execute procedure instructor_session_duration_overlap();
 
 -- Trigger 10: course_session_id inserted into Course_sessions must be in consecutive order
 -- TABLE: Course_sessions
-create or replace function consecutive_sid_course_sessions() returns trigger
+create function consecutive_sid_course_sessions() returns trigger
     language plpgsql
 as
 $$
@@ -323,7 +323,7 @@ BEGIN
     SELECT max(course_session_id)
     INTO current_highest_sid
     FROM Course_Sessions;
-    IF NEW.course_session_id <> current_highest_sid + 1 THEN
+    IF NEW.course_session_id > current_highest_sid + 1 THEN
         RAISE NOTICE 'Course_session_id must be consecutively numbered.';
         RETURN NULL;
     ELSE
@@ -331,7 +331,6 @@ BEGIN
     END IF;
 END;
 $$;
-
 
 create trigger consecutive_sid_course_sessions_trigger
     before insert or update
@@ -341,16 +340,16 @@ execute procedure consecutive_sid_course_sessions();
 
 -- Trigger 11: Course_session_date must be before depart_date of employee
 -- TABLE: Course_sessions
-create or replace function course_session_date_before_depart_date() returns trigger
+create function course_session_date_before_depart_date() returns trigger
     language plpgsql
 as
 $$
 BEGIN
     IF NOT EXISTS(
             SELECT *
-            FROM (Course_Sessions natural join Employees) T
-            WHERE T.eid = NEW.eid
-              AND T.depart_date > NEW.session_date
+            FROM Employees
+            WHERE eid = NEW.eid
+              AND depart_date > NEW.session_date
         ) THEN
         RAISE NOTICE 'Course_session date must be before depart_date of employee.';
         RETURN NULL;
@@ -359,6 +358,7 @@ BEGIN
     END IF;
 END;
 $$;
+
 
 create trigger course_session_date_before_depart_date_trigger
     before insert or update
