@@ -759,6 +759,243 @@ CREATE TRIGGER delete_session_trigger
 BEFORE DELETE ON Course_Sessions
 FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
+    --||------------------ Esmanda --------------------||--
+    ---------------------- DELETE TRIGGERS FOR EMPLOYEES HIERARCHY ----------------------
+    -- Employees
+    CREATE OR REPLACE FUNCTION block_employees_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_employees_delete_trigger
+    BEFORE DELETE ON Employees
+    FOR EACH ROW EXECUTE FUNCTION block_employees_delete_func();
+
+    -- Part_time_Emp
+    CREATE OR REPLACE FUNCTION block_pt_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_pt_delete_trigger
+    BEFORE DELETE ON Part_time_Emp
+    FOR EACH ROW EXECUTE FUNCTION block_pt_delete_func();
+
+    -- Full_time_Emp
+    CREATE OR REPLACE FUNCTION block_ft_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_ft_delete_trigger
+    BEFORE DELETE ON Full_time_Emp
+    FOR EACH ROW EXECUTE FUNCTION block_ft_delete_func();
+
+
+    -- Managers
+    CREATE OR REPLACE FUNCTION block_managers_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_managers_delete_trigger
+    BEFORE DELETE ON Managers
+    FOR EACH ROW EXECUTE FUNCTION block_managers_delete_func();
+
+    -- Administrators
+    CREATE OR REPLACE FUNCTION block_administrators_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_administrators_delete_trigger
+    BEFORE DELETE ON Administrators
+    FOR EACH ROW EXECUTE FUNCTION block_administrators_delete_func();
+
+    -- Instructors
+    CREATE OR REPLACE FUNCTION block_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_instructors_delete_trigger
+    BEFORE DELETE ON Instructors
+    FOR EACH ROW EXECUTE FUNCTION block_instructors_delete_func();
+
+    -- Part_time_instructors
+    CREATE OR REPLACE FUNCTION block_pt_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_pt_instructors_delete_trigger
+    BEFORE DELETE ON Part_time_instructors
+    FOR EACH ROW EXECUTE FUNCTION block_pt_instructors_delete_func();
+
+    -- Full_time_instructors
+    CREATE OR REPLACE FUNCTION block_ft_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_ft_instructors_delete_trigger
+    BEFORE DELETE ON Full_time_instructors
+    FOR EACH ROW EXECUTE FUNCTION block_ft_instructors_delete_func();
+
+    -- TRIGGER 8
+    CREATE OR REPLACE FUNCTION part_time_instructor_hours_func() RETURNS TRIGGER AS $$
+    DECLARE
+        new_duration INTEGER;
+        total_hours INTEGER;
+    BEGIN
+        IF EXISTS(SELECT 1 FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            SELECT SUM(duration) INTO total_hours FROM Course_Sessions natural join Courses
+            WHERE eid = NEW.eid
+            AND EXTRACT(MONTH FROM session_date) = EXTRACT(MONTH FROM NEW.session_date)
+            AND EXTRACT(YEAR FROM session_date) = EXTRACT(YEAR FROM NEW.session_date);
+
+            SELECT duration INTO new_duration FROM Courses WHERE course_id = NEW.course_id;
+
+            IF total_hours + new_duration > 30 THEN
+                RAISE NOTICE 'NOTE: Not updated/inserted as each part-time instructor must not
+                    teach more than 30 hours for each month';
+                RETURN NULL;
+            ELSE
+                RETURN NEW;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER part_time_instructor_hours_trigger
+    BEFORE INSERT OR UPDATE ON Course_Sessions
+    FOR EACH ROW EXECUTE FUNCTION part_time_instructor_hours_func();
+
+    -- EXTRA TRIGGERS FOR BUYS REDEEMS CANCELS
+    CREATE OR REPLACE FUNCTION buys_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = NEW.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (is_empty) THEN
+            RETURN NEW;
+        ELSE
+            RAISE NOTICE 'NOTE: Not inserted as each customer can have at most one active or partially active package.';
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER buys_trigger
+    BEFORE INSERT ON Buys
+    FOR EACH ROW EXECUTE FUNCTION buys_func();
+
+    CREATE OR REPLACE FUNCTION redeem_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = OLD.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (TG_OP = 'INSERT') THEN
+            UPDATE Buys
+            SET num_remaining_redemptions = num_remaining_redemptions - 1
+            WHERE buy_date = NEW.buy_date AND package_id = NEW.package_id AND credit_card_num = NEW.credit_card_num;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+            IF (is_empty OR (OLD.buy_date = b_date AND OLD.credit_card_num = cc_num AND OLD.package_id = pkg_id)) THEN
+                UPDATE Buys
+                SET num_remaining_redemptions = num_remaining_redemptions + 1
+                WHERE buy_date = OLD.buy_date AND package_id = OLD.package_id AND credit_card_num = OLD.credit_card_num;
+                RETURN OLD;
+            ELSE
+                RAISE NOTICE 'NOTE: Not deleted as each customer can have at most one active or partially active package.';
+                RETURN NULL;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER redeem_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Redeems
+    FOR EACH ROW EXECUTE FUNCTION redeem_func();
+
+    CREATE OR REPLACE FUNCTION cancel_func() RETURNS TRIGGER AS
+    $$
+    DECLARE
+        cc_num TEXT;
+        b_date DATE;
+        pkg_id INTEGER;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            IF NEW.package_credit IS NULL THEN
+                -- if cancelling from registers
+                DELETE
+                FROM Registers
+                WHERE cust_id = NEW.cust_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+                RETURN NEW;
+            ELSE
+                -- if cancelling from redeems
+                -- will only have at most one record in redeems such that (credit_card_num, launch_date, course_id) match
+                -- bc each customer cannot redeem >1 session from each course offering
+                SELECT buy_date, package_id, credit_card_num
+                INTO b_date, pkg_id, cc_num
+                FROM Redeems
+                         natural join Credit_cards
+                WHERE cust_id = NEW.cust_id
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                DELETE
+                FROM Redeems
+                WHERE credit_card_num = cc_num
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                IF NEW.package_credit = 0 THEN
+                    UPDATE Buys
+                    SET num_remaining_redemptions = num_remaining_redemptions - 1
+                    WHERE credit_card_num = cc_num
+                      AND buy_date = b_date
+                      AND package_id = pkg_id;
+                END IF;
+
+                RETURN NEW;
+            END IF;
+        ELSE
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER cancel_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Cancels
+    FOR EACH ROW EXECUTE FUNCTION cancel_func();
+
     --||------------------ FUNCTIONS --------------------||--
 
     --||------------------ Neil --------------------||--
@@ -1914,152 +2151,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
 
     --||------------------ Esmanda --------------------||--
-    -- TRIGGER 8
-    CREATE OR REPLACE FUNCTION part_time_instructor_hours_func() RETURNS TRIGGER AS $$
-    DECLARE
-        new_duration INTEGER;
-        total_hours INTEGER;
-    BEGIN
-        IF EXISTS(SELECT 1 FROM Part_time_instructors WHERE eid = NEW.eid) THEN
-            SELECT SUM(duration) INTO total_hours FROM Course_Sessions natural join Courses
-            WHERE eid = NEW.eid
-            AND EXTRACT(MONTH FROM session_date) = EXTRACT(MONTH FROM NEW.session_date)
-            AND EXTRACT(YEAR FROM session_date) = EXTRACT(YEAR FROM NEW.session_date);
-
-            SELECT duration INTO new_duration FROM Courses WHERE course_id = NEW.course_id;
-
-            IF total_hours + new_duration > 30 THEN
-                RAISE NOTICE 'NOTE: Not updated/inserted as each part-time instructor must not
-                    teach more than 30 hours for each month';
-                RETURN NULL;
-            ELSE
-                RETURN NEW;
-            END IF;
-        END IF;
-    END;
-    $$ LANGUAGE plpgsql;
-
-    CREATE TRIGGER part_time_instructor_hours_trigger
-    BEFORE INSERT OR UPDATE ON Course_Sessions
-    FOR EACH ROW EXECUTE FUNCTION part_time_instructor_hours_func();
-
-    -- EXTRA TRIGGERS FOR BUYS REDEEMS CANCELS
-    CREATE OR REPLACE FUNCTION buys_func() RETURNS TRIGGER AS $$
-    DECLARE
-        cid INTEGER;
-        b_date DATE;
-        cc_num TEXT;
-        pkg_id INTEGER;
-        is_empty BOOLEAN;
-    BEGIN
-        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = NEW.credit_card_num;
-        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
-        is_empty := (b_date IS NULL);
-
-        IF (is_empty) THEN
-            RETURN NEW;
-        ELSE
-            RAISE NOTICE 'NOTE: Not inserted as each customer can have at most one active or partially active package.';
-            RETURN NULL;
-        END IF;
-    END;
-    $$ LANGUAGE plpgsql;
-
-    CREATE TRIGGER buys_trigger
-    BEFORE INSERT ON Buys
-    FOR EACH ROW EXECUTE FUNCTION buys_func();
-
-    CREATE OR REPLACE FUNCTION redeem_func() RETURNS TRIGGER AS $$
-    DECLARE
-        cid INTEGER;
-        b_date DATE;
-        cc_num TEXT;
-        pkg_id INTEGER;
-        is_empty BOOLEAN;
-    BEGIN
-        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = OLD.credit_card_num;
-        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
-        is_empty := (b_date IS NULL);
-
-        IF (TG_OP = 'INSERT') THEN
-            UPDATE Buys
-            SET num_remaining_redemptions = num_remaining_redemptions - 1
-            WHERE buy_date = NEW.buy_date AND package_id = NEW.package_id AND credit_card_num = NEW.credit_card_num;
-            RETURN NEW;
-        ELSIF (TG_OP = 'DELETE') THEN
-            IF (is_empty OR (OLD.buy_date = b_date AND OLD.credit_card_num = cc_num AND OLD.package_id = pkg_id)) THEN
-                UPDATE Buys
-                SET num_remaining_redemptions = num_remaining_redemptions + 1
-                WHERE buy_date = OLD.buy_date AND package_id = OLD.package_id AND credit_card_num = OLD.credit_card_num;
-                RETURN OLD;
-            ELSE
-                RAISE NOTICE 'NOTE: Not deleted as each customer can have at most one active or partially active package.';
-                RETURN NULL;
-            END IF;
-        END IF;
-    END;
-    $$ LANGUAGE plpgsql;
-
-    CREATE TRIGGER redeem_trigger
-    BEFORE INSERT OR UPDATE OR DELETE ON Redeems
-    FOR EACH ROW EXECUTE FUNCTION redeem_func();
-
-    CREATE OR REPLACE FUNCTION cancel_func() RETURNS TRIGGER AS
-    $$
-    DECLARE
-        cc_num TEXT;
-        b_date DATE;
-        pkg_id INTEGER;
-    BEGIN
-        IF (TG_OP = 'INSERT') THEN
-            IF NEW.package_credit IS NULL THEN
-                -- if cancelling from registers
-                DELETE
-                FROM Registers
-                WHERE cust_id = NEW.cust_id
-                  AND launch_date = NEW.launch_date
-                  AND course_id = NEW.course_id;
-                RETURN NEW;
-            ELSE
-                -- if cancelling from redeems
-                -- will only have at most one record in redeems such that (credit_card_num, launch_date, course_id) match
-                -- bc each customer cannot redeem >1 session from each course offering
-                SELECT buy_date, package_id, credit_card_num
-                INTO b_date, pkg_id, cc_num
-                FROM Redeems
-                         natural join Credit_cards
-                WHERE cust_id = NEW.cust_id
-                  AND course_session_id = NEW.course_session_id
-                  AND launch_date = NEW.launch_date
-                  AND course_id = NEW.course_id;
-
-                DELETE
-                FROM Redeems
-                WHERE credit_card_num = cc_num
-                  AND course_session_id = NEW.course_session_id
-                  AND launch_date = NEW.launch_date
-                  AND course_id = NEW.course_id;
-
-                IF NEW.package_credit = 0 THEN
-                    UPDATE Buys
-                    SET num_remaining_redemptions = num_remaining_redemptions - 1
-                    WHERE credit_card_num = cc_num
-                      AND buy_date = b_date
-                      AND package_id = pkg_id;
-                END IF;
-
-                RETURN NEW;
-            END IF;
-        ELSE
-            RETURN NULL;
-        END IF;
-    END;
-    $$ LANGUAGE plpgsql;
-
-    CREATE TRIGGER cancel_trigger
-    BEFORE INSERT OR UPDATE OR DELETE ON Cancels
-    FOR EACH ROW EXECUTE FUNCTION cancel_func();
-
     -- FN 13
     create or replace procedure buy_course_package(cid integer, pkg_id integer)
     language plpgsql
