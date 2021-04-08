@@ -655,6 +655,110 @@
     AFTER INSERT OR UPDATE OR DELETE ON Course_sessions
     FOR EACH ROW EXECUTE FUNCTION offering_capacity_func();
 
+-- Trigger for Instructors to ensure it specialises in at least one course area
+CREATE OR REPLACE FUNCTION instructor_specialisation_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Specialises WHERE eid = NEW.eid) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Instructor not inserted/updated as he does not specialise in any course area.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER instructor_specialisation_trigger
+BEFORE INSERT OR UPDATE ON Instructors
+FOR EACH ROW EXECUTE FUNCTION instructor_specialisation_func();
+
+-- Trigger to check that it is not the only specialisation before deletion
+-- Ensures the at least one specialisation for instructors constraint
+CREATE OR REPLACE FUNCTION delete_specialisation_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Specialises WHERE eid = OLD.eid) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Specialises not deleted as it is the only specialisation for this instructor.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_specialisation_trigger
+BEFORE DELETE ON Specialises
+FOR EACH ROW EXECUTE FUNCTION delete_specialisation_func();
+
+-- trigger for Customers: at least one credit card
+CREATE OR REPLACE FUNCTION customer_creditcard_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Credit_cards WHERE cust_id = NEW.cust_id) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Customer not inserted/updated as he does not own a credit card.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER customer_creditcard_trigger
+BEFORE INSERT OR UPDATE ON Customers
+FOR EACH ROW EXECUTE FUNCTION customer_creditcard_func();
+
+-- check that it is not the only credit card before deletion
+-- ensure cust has at least one credit card
+CREATE OR REPLACE FUNCTION delete_creditcard_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Credit_cards WHERE cust_id = OLD.cust_id) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Credit card not deleted as it is the only credit card for this customer.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_creditcard_trigger
+BEFORE DELETE ON Credit_cards
+FOR EACH ROW EXECUTE FUNCTION delete_creditcard_func();
+
+-- trigger for Offerings to check that at least one session exist before adding into offerings
+CREATE OR REPLACE FUNCTION offering_sessions_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Course_sessions WHERE launch_date = NEW.launch_date AND course_id = NEW.course_id) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Offering not inserted/updated as it does not have at least one session.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER offering_sessions_trigger
+BEFORE INSERT OR UPDATE ON Offerings
+FOR EACH ROW EXECUTE FUNCTION offering_sessions_func();
+
+-- check before deletion of session, that it is not the only session left.
+CREATE OR REPLACE FUNCTION delete_session_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Course_sessions WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Course session not deleted as it is the only session for this offering.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_session_trigger
+BEFORE DELETE ON Course_Sessions
+FOR EACH ROW EXECUTE FUNCTION delete_session_func();
+
     --||------------------ FUNCTIONS --------------------||--
 
     --||------------------ Neil --------------------||--
@@ -681,36 +785,39 @@
         set constraints fti_instructors_fkey deferred;
         set constraints fti_ft_fkey deferred;
         set constraints administrators_ft_fkey deferred;
+        set constraints specialises_instructors_fkey deferred;
         CASE
             WHEN category = 'MANAGER' THEN
-            INSERT INTO Managers VALUES (employeeId);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            LOOP
-                EXIT WHEN numCount > arrayItems;
-                INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
-                numCount := numCount + 1;
-            END LOOP;
-            WHEN category = 'INSTRUCTOR' THEN
-            IF partTime THEN
-                INSERT INTO Part_time_instructors VALUES (employeeId);
-                INSERT INTO Instructors VALUES (employeeId);
-                INSERT INTO Part_time_Emp VALUES (employeeId, salary);
-            ELSE
-                INSERT INTO Full_time_instructors VALUES (employeeId);
-                INSERT INTO Instructors VALUES (employeeId);
+                INSERT INTO Managers VALUES (employeeId);
                 INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-            END IF;
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            LOOP
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+                LOOP
+                    EXIT WHEN numCount > arrayItems;
+                    INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
+                    numCount := numCount + 1;
+                END LOOP;
+            WHEN category = 'INSTRUCTOR' THEN
+                LOOP
                 EXIT WHEN numCount > arrayItems;
                 INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
                 numCount := numCount + 1;
-            END LOOP;
+                END LOOP;
+
+                IF partTime THEN
+                    INSERT INTO Part_time_instructors VALUES (employeeId);
+                    INSERT INTO Instructors VALUES (employeeId);
+                    INSERT INTO Part_time_Emp VALUES (employeeId, salary);
+                ELSE
+                    INSERT INTO Full_time_instructors VALUES (employeeId);
+                    INSERT INTO Instructors VALUES (employeeId);
+                    INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+                END IF;
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+
             WHEN category = 'ADMINISTRATOR' THEN
-            INSERT INTO Administrators VALUES (employeeId);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+                INSERT INTO Administrators VALUES (employeeId);
+                INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
         END CASE;
     END;
     $$;
@@ -754,18 +861,18 @@
 
     -- 3. add_customer:
     -- This function does not trigger any triggers!
-    create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
-        language plpgsql
+ create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
     as
     $$
     DECLARE
         custId INT;
     BEGIN
+        set constraints creditcards_customers_fkey deferred;
         select into custId max(cust_id) + 1 from Customers;
-        INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
         INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
+        INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
     END;
-    $$;
+    $$ language plpgsql;
 
 
     -- 4. update_credit_card:
@@ -1508,8 +1615,7 @@
             instructor_id INTEGER;
 
         BEGIN
-            INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
-            VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
+            set constraints sessions_offerings_fkey deferred;
 
             session_number := 0;
             total_seating_capacity := 0;
@@ -1535,6 +1641,9 @@
                 END IF;
 
             END LOOP;
+
+            INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
+            VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
 
             -- if no sessions info provided, seating capacity will be 0
             SELECT COALESCE(seating_capacity, 0) FROM Offerings WHERE launch_date = offering_launch_date AND course_id = cid INTO total_seating_capacity;
