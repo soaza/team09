@@ -561,11 +561,11 @@
     $$ LANGUAGE plpgsql;
 
     CREATE TRIGGER max_one_session_redeem_trigger
-    BEFORE INSERT OR UPDATE ON Redeems
+    BEFORE INSERT ON Redeems
     FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
 
     CREATE TRIGGER max_one_session_register_trigger
-    BEFORE INSERT OR UPDATE ON Registers
+    BEFORE INSERT ON Registers
     FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
 
     -- Trigger 1: customers must register before registration_deadline Offerings
@@ -1851,11 +1851,15 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             num_available_instructors INTEGER;
             instructor_id INTEGER;
 
+            course_duration INTEGER;
+
         BEGIN
             set constraints sessions_offerings_fkey deferred;
 
             session_number := 0;
             total_seating_capacity := 0;
+
+            SELECT duration from Courses WHERE course_id = cid INTO course_duration;
 
             FOREACH info SLICE 1 IN ARRAY sessions_info
             LOOP
@@ -1863,6 +1867,10 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 session_date := info[1]::DATE;
                 start_time := TO_TIMESTAMP(info[2], 'HH24:MI')::TIME;
                 room_id := info[3]::INTEGER;
+
+                IF course_duration = 4 AND start_time <> '14:00' THEN
+                    ROLLBACK;
+                END IF;
 
                 SELECT (seating_capacity + total_seating_capacity) FROM Rooms where rid = room_id INTO total_seating_capacity;
 
