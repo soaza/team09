@@ -577,9 +577,6 @@
     AFTER INSERT OR UPDATE OR DELETE ON Course_sessions
     FOR EACH ROW EXECUTE FUNCTION offering_capacity_func();
 
-    --||------------------ Esmanda --------------------||--
-
-
     --||------------------ FUNCTIONS --------------------||--
 
     --||------------------ Neil --------------------||--
@@ -818,8 +815,6 @@
     END;
     $$;
 
-    alter function get_my_registrations(integer) owner to kimguan;
-
 
 
 
@@ -859,7 +854,7 @@
             END IF;
         END IF;
     END;
-    $$ language plpgsql
+    $$ language plpgsql;
 
     -- 20. cancel_registration:
     create or replace procedure cancel_registration(custId INTEGER, launchDate DATE, courseId INTEGER)
@@ -893,7 +888,7 @@
             INSERT INTO Cancels VALUES (CURRENT_DATE, refundAmount, packageCredit, packageId, courseSessionId, launchDate, courseId, custId);
         END IF;
     END;
-    $$ language plpgsql
+    $$ language plpgsql;
 
 
     --||------------------ Kim Guan --------------------||--
@@ -1724,3 +1719,441 @@
 
 
     --||------------------ Esmanda --------------------||--
+    -- TRIGGER 8
+    CREATE OR REPLACE FUNCTION part_time_instructor_hours_func() RETURNS TRIGGER AS $$
+    DECLARE
+        new_duration INTEGER;
+        total_hours INTEGER;
+    BEGIN
+        IF EXISTS(SELECT 1 FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            SELECT SUM(duration) INTO total_hours FROM Course_Sessions natural join Courses
+            WHERE eid = NEW.eid
+            AND EXTRACT(MONTH FROM session_date) = EXTRACT(MONTH FROM NEW.session_date)
+            AND EXTRACT(YEAR FROM session_date) = EXTRACT(YEAR FROM NEW.session_date);
+
+            SELECT duration INTO new_duration FROM Courses WHERE course_id = NEW.course_id;
+
+            IF total_hours + new_duration > 30 THEN
+                RAISE NOTICE 'NOTE: Not updated/inserted as each part-time instructor must not
+                    teach more than 30 hours for each month';
+                RETURN NULL;
+            ELSE
+                RETURN NEW;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER part_time_instructor_hours_trigger
+    BEFORE INSERT OR UPDATE ON Course_Sessions
+    FOR EACH ROW EXECUTE FUNCTION part_time_instructor_hours_func();
+
+    -- EXTRA TRIGGERS FOR BUYS REDEEMS CANCELS
+    CREATE OR REPLACE FUNCTION buys_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = NEW.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (is_empty) THEN
+            RETURN NEW;
+        ELSE
+            RAISE NOTICE 'NOTE: Not inserted as each customer can have at most one active or partially active package.';
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER buys_trigger
+    BEFORE INSERT ON Buys
+    FOR EACH ROW EXECUTE FUNCTION buys_func();
+
+    CREATE OR REPLACE FUNCTION redeem_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = OLD.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (TG_OP = 'INSERT') THEN
+            UPDATE Buys
+            SET num_remaining_redemptions = num_remaining_redemptions - 1
+            WHERE buy_date = NEW.buy_date AND package_id = NEW.package_id AND credit_card_num = NEW.credit_card_num;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+            IF (is_empty OR (OLD.buy_date = b_date AND OLD.credit_card_num = cc_num AND OLD.package_id = pkg_id)) THEN
+                UPDATE Buys
+                SET num_remaining_redemptions = num_remaining_redemptions + 1
+                WHERE buy_date = OLD.buy_date AND package_id = OLD.package_id AND credit_card_num = OLD.credit_card_num;
+                RETURN OLD;
+            ELSE
+                RAISE NOTICE 'NOTE: Not deleted as each customer can have at most one active or partially active package.';
+                RETURN NULL;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER redeem_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Redeems
+    FOR EACH ROW EXECUTE FUNCTION redeem_func();
+
+    CREATE OR REPLACE FUNCTION cancel_func() RETURNS TRIGGER AS
+    $$
+    DECLARE
+        cc_num TEXT;
+        b_date DATE;
+        pkg_id INTEGER;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            IF NEW.package_credit IS NULL THEN
+                -- if cancelling from registers
+                DELETE
+                FROM Registers
+                WHERE cust_id = NEW.cust_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+                RETURN NEW;
+            ELSE
+                -- if cancelling from redeems
+                -- will only have at most one record in redeems such that (credit_card_num, launch_date, course_id) match
+                -- bc each customer cannot redeem >1 session from each course offering
+                SELECT buy_date, package_id, credit_card_num
+                INTO b_date, pkg_id, cc_num
+                FROM Redeems
+                         natural join Credit_cards
+                WHERE cust_id = NEW.cust_id
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                DELETE
+                FROM Redeems
+                WHERE credit_card_num = cc_num
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                IF NEW.package_credit = 0 THEN
+                    UPDATE Buys
+                    SET num_remaining_redemptions = num_remaining_redemptions - 1
+                    WHERE credit_card_num = cc_num
+                      AND buy_date = b_date
+                      AND package_id = pkg_id;
+                END IF;
+
+                RETURN NEW;
+            END IF;
+        ELSE
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER cancel_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Cancels
+    FOR EACH ROW EXECUTE FUNCTION cancel_func();
+
+    -- FN 13
+    create or replace procedure buy_course_package(cid integer, pkg_id integer)
+    language plpgsql
+    as
+    $$
+    DECLARE
+        cc_num TEXT;
+        num_free_reg INTEGER;
+        end_date DATE;
+        current_date DATE;
+    BEGIN
+        SELECT credit_card_num INTO cc_num FROM Credit_cards
+        WHERE cust_id = cid
+        AND from_date >= ALL(SELECT from_date FROM Credit_cards WHERE cust_id = cid);
+        SELECT num_free_registrations, sale_end_date INTO num_free_reg, end_date
+        FROM Course_packages WHERE package_id = pkg_id;
+
+        current_date := NOW()::timestamp::date;
+        IF current_date <= end_date THEN
+            INSERT INTO Buys
+            VALUES (current_date, pkg_id, cc_num, num_free_reg);
+        ELSE
+            RAISE EXCEPTION 'Note: The promotional package is no longer available for sale';
+        END IF;
+    END;
+    $$;
+
+    -- FN 14
+    create or replace function get_my_course_package(cid integer, OUT result json) returns json
+        language plpgsql
+    as
+    $$
+    DECLARE
+        cc_num TEXT;
+        pkg_id INTEGER;
+        b_date DATE;
+        is_empty BOOLEAN;
+        to_append JSON;
+    BEGIN
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (NOT is_empty) THEN
+            -- course package info
+            SELECT json_agg(t) INTO result FROM (
+                SELECT course_package_name, buy_date, price, num_free_registrations, num_remaining_redemptions
+                FROM Buys natural join Course_packages
+                WHERE package_id = pkg_id AND credit_card_num = cc_num AND buy_date = b_date) t;
+
+            -- info for all redeemed sessions
+            SELECT json_agg(r) INTO to_append FROM (
+                SELECT course_session_id, launch_date, course_id FROM Redeems natural join Course_Sessions
+                WHERE credit_card_num = cc_num AND package_id = pkg_id AND buy_date = b_date
+                ORDER BY session_date, start_time) r;
+
+            IF to_append IS NOT NULL THEN
+                result := result::jsonb || to_append::jsonb;
+            END IF;
+        END IF;
+    END;
+    $$;
+
+    -- FN 15
+    create or replace function get_available_course_offerings()
+        returns TABLE(c_title text, c_area_name text, c_start_date date, c_end_date date, reg_deadline date, c_fees decimal, num_remaining_seats integer)
+        language plpgsql
+    as
+    $$
+    DECLARE
+        curs CURSOR FOR (SELECT * FROM Courses natural join Offerings ORDER BY registration_deadline, title);
+        r RECORD;
+        seating_cap INTEGER;
+        num_registrations INTEGER;
+        num_redemptions INTEGER;
+    BEGIN
+        -- num remaining seats = seating capacity - total number of reg
+        OPEN curs;
+        LOOP
+            FETCH curs INTO r;
+            EXIT WHEN NOT FOUND;
+            reg_deadline := r.registration_deadline;
+            IF reg_deadline > NOW()::timestamp::date THEN
+                seating_cap := r.seating_capacity;
+                SELECT COUNT(*) INTO num_registrations FROM REGISTERS
+                WHERE launch_date = r.launch_date and course_id = r.course_id;
+                SELECT COUNT(*) INTO num_redemptions FROM REDEEMS
+                WHERE launch_date = r.launch_date and course_id = r.course_id;
+                num_remaining_seats := seating_cap - num_registrations - num_redemptions;
+
+                IF num_remaining_seats > 0 THEN
+                    c_title := r.title;
+                    c_area_name := r.course_area_name;
+                    c_start_date := r.actual_start_date;
+                    c_end_date := r.end_date;
+                    c_fees := r.fees;
+                    RETURN NEXT;
+                END IF;
+            END IF;
+        END LOOP;
+        CLOSE curs;
+    END;
+    $$;
+
+    -- FN 16
+    create or replace function get_available_course_sessions(l_date date, cid integer)
+        returns TABLE(s_date date, s_start_time time, s_instructor integer, num_remaining_seats integer)
+        language plpgsql
+    as
+    $$
+    DECLARE
+        curs CURSOR FOR (SELECT * FROM Course_Sessions
+        WHERE launch_date = l_date AND course_id = cid ORDER BY session_date, start_time);
+        r RECORD;
+        s_capacity INTEGER;
+        num_registrations INTEGER;
+        num_redemptions INTEGER;
+    BEGIN
+        OPEN curs;
+        LOOP
+            FETCH curs INTO r;
+            EXIT WHEN NOT FOUND;
+            s_date := r.session_date;
+            s_start_time := r.start_time;
+            s_instructor := r.eid;
+            SELECT seating_capacity INTO s_capacity FROM Rooms WHERE rid = r.rid;
+            SELECT COUNT(*) INTO num_registrations FROM REGISTERS
+            WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
+            SELECT COUNT(*) INTO num_redemptions FROM REDEEMS
+            WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
+            num_remaining_seats := s_capacity - num_registrations - num_redemptions;
+            RETURN NEXT;
+        END LOOP;
+        CLOSE curs;
+    END;
+    $$;
+
+    -- FN 29
+    CREATE OR REPLACE FUNCTION view_summary_report(num_months INTEGER)
+    RETURNS TABLE (month TEXT, year INTEGER, total_salary DECIMAL, total_pkg_sales DECIMAL,
+        total_reg_fees DECIMAL, total_refunded DECIMAL, total_reg_from_pkg INTEGER) AS $$
+    DECLARE
+        month_int INTEGER;
+        to_convert_month INTEGER;
+        curr_date DATE;
+    BEGIN
+        curr_date := NOW()::timestamp::date;
+        month_int := EXTRACT(MONTH FROM curr_date);
+        year:= EXTRACT(YEAR FROM curr_date);
+
+        LOOP
+            IF (EXTRACT(MONTH FROM curr_date) - num_months >= month_int) THEN
+                EXIT;
+            END IF;
+
+            IF month_int <= 0 THEN
+                to_convert_month := ((month_int % 12) + 12) % 12;
+                IF to_convert_month = 0 THEN
+                    to_convert_month := to_convert_month + 12;
+                    year := year - 1;
+                END IF;
+            ELSE
+                to_convert_month := month_int;
+            END IF;
+
+            SELECT TO_CHAR(TO_DATE(to_convert_month::text, 'MM'), 'Month') AS "Month Name" INTO month;
+
+            SELECT SUM(amount) INTO total_salary FROM Pay_slips
+            WHERE EXTRACT(MONTH FROM payment_date) = month_int
+            AND EXTRACT(YEAR FROM payment_date) = year;
+            IF total_salary IS NULL THEN total_salary := 0;
+            END IF;
+
+            SELECT SUM(price) INTO total_pkg_sales FROM Course_packages natural join Buys
+            WHERE EXTRACT(MONTH FROM buy_date) = month_int
+            AND EXTRACT(YEAR FROM buy_date) = year;
+            IF total_pkg_sales IS NULL THEN total_pkg_sales := 0;
+            END IF;
+
+            SELECT SUM(fees) INTO total_reg_fees FROM Offerings natural join Registers
+            WHERE EXTRACT(MONTH FROM registration_date) = month_int
+            AND EXTRACT(YEAR FROM registration_date) = year;
+            IF total_reg_fees IS NULL THEN total_reg_fees := 0;
+            END IF;
+
+            SELECT SUM(refund_amt) INTO total_refunded FROM Cancels
+            WHERE refund_amt IS NOT NULL
+            AND EXTRACT(MONTH FROM cancel_date) = month_int
+            AND EXTRACT(YEAR FROM cancel_date) = year;
+            IF total_refunded IS NULL THEN total_refunded := 0;
+            END IF;
+
+            SELECT COUNT(*) INTO total_reg_from_pkg FROM Redeems
+            WHERE EXTRACT(MONTH FROM redeem_date) = month_int
+            AND EXTRACT(YEAR FROM redeem_date) = year;
+            IF total_reg_from_pkg IS NULL THEN total_reg_from_pkg := 0;
+            END IF;
+
+            RETURN NEXT;
+            month_int := month_int - 1;
+        END LOOP;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    -- FN 30
+    CREATE OR REPLACE FUNCTION view_manager_report()
+    RETURNS TABLE (mngr_name TEXT, num_course_areas INTEGER, num_offerings_ended INTEGER,
+        net_reg_fees DECIMAL, highest_course_title TEXT[]) AS $$
+    DECLARE
+        curs1 CURSOR FOR (SELECT eid, emp_name FROM Employees natural join Managers ORDER BY emp_name);
+        curs2 CURSOR FOR (
+            SELECT O.course_id, O.launch_date, O.end_date, O.fees, C.title, A.eid
+            FROM (Offerings O natural join Courses C) join Course_area A ON (C.course_area_name = A.course_area_name)
+            WHERE EXTRACT(YEAR FROM end_date) = EXTRACT(YEAR FROM CURRENT_DATE));
+        r1 RECORD;
+        r2 RECORD;
+        num_reg INTEGER;
+        num_cancelled_reg INTEGER;
+        tmp_sum DECIMAL;
+        reg_fees DECIMAL;
+        highest_reg_fees DECIMAL;
+        highest_course TEXT[];
+    BEGIN
+        OPEN CURS1;
+        LOOP
+            FETCH curs1 INTO r1;
+            EXIT WHEN NOT FOUND;
+            mngr_name := r1.emp_name;
+
+            SELECT COUNT(*) INTO num_course_areas FROM Course_area
+            WHERE eid = r1.eid;
+
+            SELECT COUNT(*) INTO num_offerings_ended
+            FROM (Offerings O natural join Courses C) join Course_area A ON (C.course_area_name = A.course_area_name)
+            WHERE A.eid = r1.eid AND EXTRACT(YEAR FROM O.end_date) = EXTRACT(YEAR FROM CURRENT_DATE);
+
+            net_reg_fees := 0;
+            reg_fees := 0;
+            highest_reg_fees := -1;
+            highest_course := ARRAY[]::TEXT[];
+            OPEN CURS2;
+            LOOP
+                FETCH curs2 INTO r2;
+                EXIT WHEN NOT FOUND;
+                IF (r2.eid = r1.eid) THEN
+                    RAISE NOTICE '%', mngr_name;
+                    -- calculating registration fees
+                    SELECT COUNT(*) INTO num_reg FROM Registers WHERE launch_date = r2.launch_date AND course_id = r2.course_id;
+                    reg_fees := r2.fees * num_reg;
+                    RAISE NOTICE '1. %', reg_fees;
+                    SELECT COUNT(*), SUM(refund_amt) INTO num_cancelled_reg, tmp_sum FROM Cancels
+                    WHERE refund_amt IS NOT NULL AND launch_date = r2.launch_date AND course_id = r2.course_id;
+                    IF tmp_sum IS NULL THEN
+                        tmp_sum := 0;
+                    end if;
+                    reg_fees := reg_fees + (num_cancelled_reg * r2.fees - tmp_sum);
+                    RAISE NOTICE '2. %', reg_fees;
+
+                    -- calculating total redemption registration fees
+                    SELECT SUM(price / num_free_registrations) INTO tmp_sum FROM Redeems natural join Course_packages
+                    WHERE launch_date = r2.launch_date AND course_id = r2.course_id;
+                    IF tmp_sum IS NULL THEN
+                        tmp_sum := 0;
+                    end if;
+                    reg_fees := reg_fees + tmp_sum;
+                    RAISE NOTICE '3. %', reg_fees;
+                    SELECT SUM(price / num_free_registrations) INTO tmp_sum FROM Cancels natural join Course_packages
+                    WHERE launch_date = r2.launch_date AND course_id = r2.course_id
+                    AND package_credit = 0;
+                    IF tmp_sum IS NULL THEN
+                        tmp_sum := 0;
+                    end if;
+                    reg_fees := reg_fees + tmp_sum;
+                    RAISE NOTICE '4. %', reg_fees;
+
+                    net_reg_fees := net_reg_fees + reg_fees;
+
+                    IF (reg_fees > highest_reg_fees) THEN
+                        highest_reg_fees := reg_fees;
+                        highest_course := ARRAY[r2.title];
+                    ELSIF (reg_fees = highest_reg_fees) THEN
+                        highest_course := array_append(highest_course, r2.title);
+                    END IF;
+                END IF;
+            END LOOP;
+            CLOSE CURS2;
+            RAISE NOTICE '%',highest_course_title;
+            highest_course_title := highest_course;
+            RETURN NEXT;
+        END LOOP;
+        CLOSE CURS1;
+    END;
+    $$ LANGUAGE plpgsql;
