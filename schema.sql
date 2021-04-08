@@ -141,7 +141,9 @@ CREATE TABLE Specialises (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY(course_area_name) REFERENCES Course_area
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    constraint specialises_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors
+    deferrable initially immediate
     -- decision not to put on update cascade because if an instructor specialises in the previous course area, 
     -- it doesn't necessarily mean that he would specialise in the updated course area as well
 );
