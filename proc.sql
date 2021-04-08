@@ -79,11 +79,11 @@
 
     create trigger pt_ft_overlap_check
     before insert or update on Full_time_Emp
-    for each row execute function pt_ft_overlap_check();
+    for each row execute function pt_ft_emp_overlap_check();
 
     create trigger pt_ft_overlap_check
     before insert or update on Part_time_Emp
-    for each row execute function pt_ft_overlap_check();
+    for each row execute function pt_ft_emp_overlap_check();
 
     -- Following 4 triggers check the covering constraint, ensuring that if an employee exists higher up in the ISA structure
     -- he must exist in the lower part of the ISA structure i.e. Employee tuple exists, then the employee must exists in either
@@ -105,7 +105,7 @@
             RETURN NEW;
         END IF;
     END;
-    $$ LANGUAGE plpgsql
+    $$ LANGUAGE plpgsql;
 
     create trigger employees_ft_pt_covering_check
     before insert or update on Employees
@@ -121,7 +121,7 @@
             RETURN NEW;
         END IF;
     END;
-    $$ LANGUAGE plpgsql
+    $$ LANGUAGE plpgsql;
 
     create trigger ft_fti_administrator_manager_covering_check
     before insert or update on Full_time_Emp
@@ -137,7 +137,7 @@
             RETURN NEW;
         END IF;
     END;
-    $$ LANGUAGE plpgsql
+    $$ LANGUAGE plpgsql;
 
     create trigger pt_pti_covering_check
     before insert or update on Part_time_Emp
@@ -154,7 +154,7 @@
             RETURN NEW;
         END IF;
     END;
-    $$ LANGUAGE plpgsql
+    $$ LANGUAGE plpgsql;
 
     create trigger instructor_pti_fti_covering_check
     before insert or update on Instructors
