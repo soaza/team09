@@ -1368,6 +1368,8 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     SELECT eid, emp_name
     FROM (Specialises NATURAL JOIN Courses NATURAL JOIN Instructors NATURAL JOIN Employees) T
     WHERE T.course_id = find_course_id
+    AND (T.depart_date > find_session_date OR T.depart_date IS NULL)
+    AND (T.join_date < find_session_date)
     -- filter out instructors that have lessons during the start time
     AND T.eid NOT IN (
         SELECT C.eid
