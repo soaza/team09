@@ -36,39 +36,35 @@ CREATE TABLE Employees (
 CREATE TABLE Part_time_Emp (
     eid INTEGER PRIMARY KEY,
     hourly_rate DECIMAL,
-    FOREIGN KEY(eid) REFERENCES Employees(eid) 
+    CONSTRAINT pt_emp_fkey FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT pt_emp_fkey foreign key(eid) references Employees 
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Full_time_Emp (
     eid INTEGER PRIMARY KEY,
     month_salary DECIMAL,
-    FOREIGN KEY(eid) REFERENCES Employees(eid)
+    CONSTRAINT ft_emp_fkey FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT ft_emp_fkey foreign key(eid) references Employees 
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Managers (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
+    CONSTRAINT managers_ft_fkey FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT managers_ft_fkey foreign key(eid) references Full_time_Emp 
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Administrators (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
+    CONSTRAINT administrators_ft_fkey FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT administrators_ft_fkey foreign key(eid) references Full_time_Emp 
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Pay_slips (
@@ -86,39 +82,34 @@ CREATE TABLE Pay_slips (
 
 CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Employees(eid)
+    CONSTRAINT instructors_emp_fkey FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT instructors_emp_fkey foreign key(eid) references Employees 
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Part_time_instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Instructors(eid)
+    CONSTRAINT pti_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid)
+        ON UPDATE CASCADE
+        deferrable initially immediate,
+    CONSTRAINT pti_pt_fkey FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT pti_instructors_fkey foreign key(eid) references Instructors
-    deferrable initially immediate,
-    CONSTRAINT pti_pt_fkey foreign key(eid) references Part_Time_Emp
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Full_time_instructors (
     eid INTEGER PRIMARY KEY,
-    FOREIGN KEY(eid) REFERENCES Instructors(eid)
+    CONSTRAINT fti_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
+        ON UPDATE CASCADE
+        deferrable initially immediate,
+    CONSTRAINT fti_ft_fkey FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    CONSTRAINT fti_instructors_fkey foreign key(eid) references Instructors
-    deferrable initially immediate,
-    CONSTRAINT fti_ft_fkey foreign key(eid) references Full_time_Emp
-    deferrable initially immediate
+        ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 CREATE TABLE Course_area (
@@ -137,13 +128,12 @@ CREATE TABLE Specialises (
     eid INTEGER,
     course_area_name TEXT,
     PRIMARY KEY(eid,course_area_name),
-    FOREIGN KEY(eid) REFERENCES Instructors
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY(course_area_name) REFERENCES Course_area
-        ON DELETE CASCADE,
     CONSTRAINT specialises_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors
-        deferrable initially immediate
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+        deferrable initially immediate,
+    FOREIGN KEY(course_area_name) REFERENCES Course_area
+        ON DELETE CASCADE
     -- decision not to put on update cascade because if an instructor specialises in the previous course area, 
     -- it doesn't necessarily mean that he would specialise in the updated course area as well
 );
