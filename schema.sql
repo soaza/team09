@@ -142,8 +142,8 @@ CREATE TABLE Specialises (
         ON UPDATE CASCADE,
     FOREIGN KEY(course_area_name) REFERENCES Course_area
         ON DELETE CASCADE,
-    constraint specialises_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors
-    deferrable initially immediate
+    CONSTRAINT specialises_instructors_fkey FOREIGN KEY(eid) REFERENCES Instructors
+        deferrable initially immediate
     -- decision not to put on update cascade because if an instructor specialises in the previous course area, 
     -- it doesn't necessarily mean that he would specialise in the updated course area as well
 );
@@ -154,7 +154,8 @@ CREATE TABLE Courses (
     title TEXT UNIQUE,
     course_description text,
     -- in terms of hours
-    duration INTEGER,
+    duration INTEGER
+        check (duration <= 4),
     FOREIGN KEY(course_area_name) REFERENCES Course_area(course_area_name)
         ON DELETE CASCADE
     -- decision to put on delete cascade because it was not specified that a course area cannot be deleted 
@@ -234,9 +235,10 @@ CREATE TABLE Course_Sessions (
     FOREIGN KEY(eid) REFERENCES Instructors(eid)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id)
+    CONSTRAINT sessions_offerings_fkey FOREIGN KEY(launch_date,course_id) REFERENCES Offerings(launch_date,course_id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
+        ON UPDATE CASCADE
+        deferrable initially immediate,
     PRIMARY KEY(launch_date,course_id,course_session_id)
 );
 
@@ -260,9 +262,10 @@ CREATE TABLE Credit_cards (
     UNIQUE(cust_id, credit_card_num),
     UNIQUE(cust_id, from_date),
     -- because we determine the status of the credit card based on most recent from_date
-    FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
+    CONSTRAINT creditcards_customers_fkey FOREIGN KEY(cust_id) REFERENCES Customers(cust_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+        deferrable initially immediate
 );
 
 

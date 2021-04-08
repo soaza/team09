@@ -34,15 +34,17 @@
     --||------------------ TRIGGERS --------------------||--
 
     --||------------------ Neil --------------------||--
-    -- Trigger 5: Employee overlap Constraints
+    -- Trigger 5: Employee overlap and covering constraints 
     -- For insert, a full time employee cannot exist in any of the three tables from before.
     -- e.g. If I want to add a new administrator, I must check if the person is already a manager/instructor.
     -- However, an administrator cannot be added again to the administrator table as employees must be unique entities
     -- I need to check each individual table whether an employee exists because insertion on Full_time_Emp table happens before.
+
+    -- Following 2 functions are overlap constraints i.e. employee must be exclusively one of the categories
     create or replace function full_time_emp_overlap_check() returns Trigger as $$
     BEGIN
         IF (EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid)) THEN
-            RAISE NOTICE 'Cannot add employee to Administrator, is already a full time employee';
+            RAISE NOTICE 'Employee already exists';
             RETURN NULL;
         ELSE
             RETURN NEW;
@@ -67,7 +69,7 @@
     create or replace function pt_ft_emp_overlap_check() returns Trigger as $$
     BEGIN
         IF (EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
-            RAISE NOTICE 'Employee is already an Employee.';
+            RAISE NOTICE 'Employee already exists.';
             RETURN NULL;
         ELSE
             RETURN NEW;
@@ -82,6 +84,82 @@
     create trigger pt_ft_overlap_check
     before insert or update on Part_time_Emp
     for each row execute function pt_ft_emp_overlap_check();
+
+    -- Following 4 triggers check the covering constraint, ensuring that if an employee exists higher up in the ISA structure
+    -- he must exist in the lower part of the ISA structure i.e. Employee tuple exists, then the employee must exists in either
+    -- Administrator, Manager, Instructor and similarly must exist in part time full time employee and must exist in part time full time instructor
+    -- Employees -> Part Time Emp, Full Time Emp
+    -- Full Time Employee -> Full time instructor, administrators, managers
+    -- Part time employees -> part time instructor
+    -- Instructor -> part time instructor, full time instructor
+    -- Job Assignment refers to an employee entity being in the lower part of the hierarchy 
+
+
+    -- Insertions on full time emp or part time employee must happen before insertion on employee
+    create or replace function employees_ft_pt_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    create trigger employees_ft_pt_covering_check
+    before insert or update on Employees
+    for each row execute function employees_ft_pt_covering_check();
+
+    -- Insertions on full time instructor, managers and administrators must happen before insertion on full_time_employee
+    create or replace function ft_fti_administrator_manager_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    create trigger ft_fti_administrator_manager_covering_check
+    before insert or update on Full_time_Emp
+    for each row execute function ft_fti_administrator_manager_covering_check();
+
+    -- Insertions on part time instructor must happen before insertion on part_time_employee 
+    create or replace function pt_pti_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    create trigger pt_pti_covering_check
+    before insert or update on Part_time_Emp
+    for each row execute function pt_pti_covering_check();
+
+
+    -- Insertions on full time instructor and part time instructor must happen before insertion on instructor 
+    create or replace function instructor_pti_fti_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Instructors table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    create trigger instructor_pti_fti_covering_check
+    before insert or update on Instructors
+    for each row execute function instructor_pti_fti_covering_check();
+
 
     -- Trigger 2: Seating Capacity in Sessions cannot exceed room capacity
     -- Need to make trigger for total_seating_capacity from Rooms>=num_registrations witin the same course_id in Register and Redeems
@@ -484,11 +562,11 @@
     $$ LANGUAGE plpgsql;
 
     CREATE TRIGGER max_one_session_redeem_trigger
-    BEFORE INSERT OR UPDATE ON Redeems
+    BEFORE INSERT ON Redeems
     FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
 
     CREATE TRIGGER max_one_session_register_trigger
-    BEFORE INSERT OR UPDATE ON Registers
+    BEFORE INSERT ON Registers
     FOR EACH ROW EXECUTE FUNCTION max_one_session_func();
 
     -- Trigger 1: customers must register before registration_deadline Offerings
@@ -578,6 +656,347 @@
     AFTER INSERT OR UPDATE OR DELETE ON Course_sessions
     FOR EACH ROW EXECUTE FUNCTION offering_capacity_func();
 
+-- Trigger for Instructors to ensure it specialises in at least one course area
+CREATE OR REPLACE FUNCTION instructor_specialisation_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Specialises WHERE eid = NEW.eid) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Instructor not inserted/updated as he does not specialise in any course area.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER instructor_specialisation_trigger
+BEFORE INSERT OR UPDATE ON Instructors
+FOR EACH ROW EXECUTE FUNCTION instructor_specialisation_func();
+
+-- Trigger to check that it is not the only specialisation before deletion
+-- Ensures the at least one specialisation for instructors constraint
+CREATE OR REPLACE FUNCTION delete_specialisation_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Specialises WHERE eid = OLD.eid) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Specialises not deleted as it is the only specialisation for this instructor.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_specialisation_trigger
+BEFORE DELETE ON Specialises
+FOR EACH ROW EXECUTE FUNCTION delete_specialisation_func();
+
+-- trigger for Customers: at least one credit card
+CREATE OR REPLACE FUNCTION customer_creditcard_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Credit_cards WHERE cust_id = NEW.cust_id) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Customer not inserted/updated as he does not own a credit card.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER customer_creditcard_trigger
+BEFORE INSERT OR UPDATE ON Customers
+FOR EACH ROW EXECUTE FUNCTION customer_creditcard_func();
+
+-- check that it is not the only credit card before deletion
+-- ensure cust has at least one credit card
+CREATE OR REPLACE FUNCTION delete_creditcard_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Credit_cards WHERE cust_id = OLD.cust_id) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Credit card not deleted as it is the only credit card for this customer.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_creditcard_trigger
+BEFORE DELETE ON Credit_cards
+FOR EACH ROW EXECUTE FUNCTION delete_creditcard_func();
+
+-- trigger for Offerings to check that at least one session exist before adding into offerings
+CREATE OR REPLACE FUNCTION offering_sessions_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Course_sessions WHERE launch_date = NEW.launch_date AND course_id = NEW.course_id) THEN
+        RETURN NEW;
+    ELSE
+        RAISE NOTICE 'Note: Offering not inserted/updated as it does not have at least one session.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER offering_sessions_trigger
+BEFORE INSERT OR UPDATE ON Offerings
+FOR EACH ROW EXECUTE FUNCTION offering_sessions_func();
+
+-- check before deletion of session, that it is not the only session left.
+CREATE OR REPLACE FUNCTION delete_session_func() RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (SELECT count(*) FROM Course_sessions WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id) > 1 THEN
+        RETURN OLD;
+    ELSE
+        RAISE NOTICE 'Note: Course session not deleted as it is the only session for this offering.';
+        RETURN NULL;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_session_trigger
+BEFORE DELETE ON Course_Sessions
+FOR EACH ROW EXECUTE FUNCTION delete_session_func();
+
+    --||------------------ Esmanda --------------------||--
+    ---------------------- DELETE TRIGGERS FOR EMPLOYEES HIERARCHY ----------------------
+    -- Employees
+    CREATE OR REPLACE FUNCTION block_employees_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_employees_delete_trigger
+    BEFORE DELETE ON Employees
+    FOR EACH ROW EXECUTE FUNCTION block_employees_delete_func();
+
+    -- Part_time_Emp
+    CREATE OR REPLACE FUNCTION block_pt_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_pt_delete_trigger
+    BEFORE DELETE ON Part_time_Emp
+    FOR EACH ROW EXECUTE FUNCTION block_pt_delete_func();
+
+    -- Full_time_Emp
+    CREATE OR REPLACE FUNCTION block_ft_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_ft_delete_trigger
+    BEFORE DELETE ON Full_time_Emp
+    FOR EACH ROW EXECUTE FUNCTION block_ft_delete_func();
+
+
+    -- Managers
+    CREATE OR REPLACE FUNCTION block_managers_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_managers_delete_trigger
+    BEFORE DELETE ON Managers
+    FOR EACH ROW EXECUTE FUNCTION block_managers_delete_func();
+
+    -- Administrators
+    CREATE OR REPLACE FUNCTION block_administrators_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_administrators_delete_trigger
+    BEFORE DELETE ON Administrators
+    FOR EACH ROW EXECUTE FUNCTION block_administrators_delete_func();
+
+    -- Instructors
+    CREATE OR REPLACE FUNCTION block_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_instructors_delete_trigger
+    BEFORE DELETE ON Instructors
+    FOR EACH ROW EXECUTE FUNCTION block_instructors_delete_func();
+
+    -- Part_time_instructors
+    CREATE OR REPLACE FUNCTION block_pt_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_pt_instructors_delete_trigger
+    BEFORE DELETE ON Part_time_instructors
+    FOR EACH ROW EXECUTE FUNCTION block_pt_instructors_delete_func();
+
+    -- Full_time_instructors
+    CREATE OR REPLACE FUNCTION block_ft_instructors_delete_func() RETURNS TRIGGER AS $$
+    BEGIN
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER block_ft_instructors_delete_trigger
+    BEFORE DELETE ON Full_time_instructors
+    FOR EACH ROW EXECUTE FUNCTION block_ft_instructors_delete_func();
+
+    -- TRIGGER 8
+    CREATE OR REPLACE FUNCTION part_time_instructor_hours_func() RETURNS TRIGGER AS $$
+    DECLARE
+        new_duration INTEGER;
+        total_hours INTEGER;
+    BEGIN
+        IF EXISTS(SELECT 1 FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            SELECT SUM(duration) INTO total_hours FROM Course_Sessions natural join Courses
+            WHERE eid = NEW.eid
+            AND EXTRACT(MONTH FROM session_date) = EXTRACT(MONTH FROM NEW.session_date)
+            AND EXTRACT(YEAR FROM session_date) = EXTRACT(YEAR FROM NEW.session_date);
+
+            SELECT duration INTO new_duration FROM Courses WHERE course_id = NEW.course_id;
+
+            IF total_hours + new_duration > 30 THEN
+                RAISE NOTICE 'NOTE: Not updated/inserted as each part-time instructor must not
+                    teach more than 30 hours for each month';
+                RETURN NULL;
+            ELSE
+                RETURN NEW;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER part_time_instructor_hours_trigger
+    BEFORE INSERT OR UPDATE ON Course_Sessions
+    FOR EACH ROW EXECUTE FUNCTION part_time_instructor_hours_func();
+
+    -- EXTRA TRIGGERS FOR BUYS REDEEMS CANCELS
+    CREATE OR REPLACE FUNCTION buys_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = NEW.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (is_empty) THEN
+            RETURN NEW;
+        ELSE
+            RAISE NOTICE 'NOTE: Not inserted as each customer can have at most one active or partially active package.';
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER buys_trigger
+    BEFORE INSERT ON Buys
+    FOR EACH ROW EXECUTE FUNCTION buys_func();
+
+    CREATE OR REPLACE FUNCTION redeem_func() RETURNS TRIGGER AS $$
+    DECLARE
+        cid INTEGER;
+        b_date DATE;
+        cc_num TEXT;
+        pkg_id INTEGER;
+        is_empty BOOLEAN;
+    BEGIN
+        SELECT cust_id INTO cid FROM Credit_cards WHERE credit_card_num = OLD.credit_card_num;
+        SELECT * INTO cc_num, b_date, pkg_id FROM get_active_pactive_package(cid);
+        is_empty := (b_date IS NULL);
+
+        IF (TG_OP = 'INSERT') THEN
+            UPDATE Buys
+            SET num_remaining_redemptions = num_remaining_redemptions - 1
+            WHERE buy_date = NEW.buy_date AND package_id = NEW.package_id AND credit_card_num = NEW.credit_card_num;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+            IF (is_empty OR (OLD.buy_date = b_date AND OLD.credit_card_num = cc_num AND OLD.package_id = pkg_id)) THEN
+                UPDATE Buys
+                SET num_remaining_redemptions = num_remaining_redemptions + 1
+                WHERE buy_date = OLD.buy_date AND package_id = OLD.package_id AND credit_card_num = OLD.credit_card_num;
+                RETURN OLD;
+            ELSE
+                RAISE NOTICE 'NOTE: Not deleted as each customer can have at most one active or partially active package.';
+                RETURN NULL;
+            END IF;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER redeem_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Redeems
+    FOR EACH ROW EXECUTE FUNCTION redeem_func();
+
+    CREATE OR REPLACE FUNCTION cancel_func() RETURNS TRIGGER AS
+    $$
+    DECLARE
+        cc_num TEXT;
+        b_date DATE;
+        pkg_id INTEGER;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            IF NEW.package_credit IS NULL THEN
+                -- if cancelling from registers
+                DELETE
+                FROM Registers
+                WHERE cust_id = NEW.cust_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+                RETURN NEW;
+            ELSE
+                -- if cancelling from redeems
+                -- will only have at most one record in redeems such that (credit_card_num, launch_date, course_id) match
+                -- bc each customer cannot redeem >1 session from each course offering
+                SELECT buy_date, package_id, credit_card_num
+                INTO b_date, pkg_id, cc_num
+                FROM Redeems
+                         natural join Credit_cards
+                WHERE cust_id = NEW.cust_id
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                DELETE
+                FROM Redeems
+                WHERE credit_card_num = cc_num
+                  AND course_session_id = NEW.course_session_id
+                  AND launch_date = NEW.launch_date
+                  AND course_id = NEW.course_id;
+
+                IF NEW.package_credit = 0 THEN
+                    UPDATE Buys
+                    SET num_remaining_redemptions = num_remaining_redemptions - 1
+                    WHERE credit_card_num = cc_num
+                      AND buy_date = b_date
+                      AND package_id = pkg_id;
+                END IF;
+
+                RETURN NEW;
+            END IF;
+        ELSE
+            RETURN NULL;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER cancel_trigger
+    BEFORE INSERT OR UPDATE OR DELETE ON Cancels
+    FOR EACH ROW EXECUTE FUNCTION cancel_func();
+
     --||------------------ FUNCTIONS --------------------||--
 
     --||------------------ Neil --------------------||--
@@ -596,36 +1015,47 @@
         SELECT INTO employeeId max(eid) + 1 from Employees;
         arrayItems := cardinality(courseAreas);
         numCount := 1;
+        set constraints managers_ft_fkey deferred;
+        set constraints ft_emp_fkey deferred;
+        set constraints pti_instructors_fkey deferred;
+        set constraints pti_pt_fkey deferred;
+        set constraints pt_emp_fkey deferred;
+        set constraints fti_instructors_fkey deferred;
+        set constraints fti_ft_fkey deferred;
+        set constraints administrators_ft_fkey deferred;
+        set constraints specialises_instructors_fkey deferred;
         CASE
             WHEN category = 'MANAGER' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-            INSERT INTO Managers VALUES (employeeId);
-            LOOP
-                EXIT WHEN numCount > arrayItems;
-                INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
-                numCount := numCount + 1;
-            END LOOP;
-            WHEN category = 'INSTRUCTOR' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            IF partTime THEN
-                INSERT INTO Part_time_Emp VALUES (employeeId, salary);
-                INSERT INTO Instructors VALUES (employeeId);
-                INSERT INTO Part_time_instructors VALUES (employeeId);
-            ELSE
+                INSERT INTO Managers VALUES (employeeId);
                 INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-                INSERT INTO Instructors VALUES (employeeId);
-                INSERT INTO Full_time_instructors VALUES (employeeId);
-            END IF;
-            LOOP
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+                LOOP
+                    EXIT WHEN numCount > arrayItems;
+                    INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
+                    numCount := numCount + 1;
+                END LOOP;
+            WHEN category = 'INSTRUCTOR' THEN
+                LOOP
                 EXIT WHEN numCount > arrayItems;
                 INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
                 numCount := numCount + 1;
-            END LOOP;
+                END LOOP;
+
+                IF partTime THEN
+                    INSERT INTO Part_time_instructors VALUES (employeeId);
+                    INSERT INTO Instructors VALUES (employeeId);
+                    INSERT INTO Part_time_Emp VALUES (employeeId, salary);
+                ELSE
+                    INSERT INTO Full_time_instructors VALUES (employeeId);
+                    INSERT INTO Instructors VALUES (employeeId);
+                    INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+                END IF;
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+
             WHEN category = 'ADMINISTRATOR' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-            INSERT INTO Administrators VALUES (employeeId);
+                INSERT INTO Administrators VALUES (employeeId);
+                INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
         END CASE;
     END;
     $$;
@@ -669,18 +1099,18 @@
 
     -- 3. add_customer:
     -- This function does not trigger any triggers!
-    create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
-        language plpgsql
+ create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
     as
     $$
     DECLARE
         custId INT;
     BEGIN
+        set constraints creditcards_customers_fkey deferred;
         select into custId max(cust_id) + 1 from Customers;
-        INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
         INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
+        INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
     END;
-    $$;
+    $$ language plpgsql;
 
 
     -- 4. update_credit_card:
@@ -1422,12 +1852,15 @@
             num_available_instructors INTEGER;
             instructor_id INTEGER;
 
+            course_duration INTEGER;
+
         BEGIN
-            INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
-            VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
+            set constraints sessions_offerings_fkey deferred;
 
             session_number := 0;
             total_seating_capacity := 0;
+
+            SELECT duration from Courses WHERE course_id = cid INTO course_duration;
 
             FOREACH info SLICE 1 IN ARRAY sessions_info
             LOOP
@@ -1435,6 +1868,10 @@
                 session_date := info[1]::DATE;
                 start_time := TO_TIMESTAMP(info[2], 'HH24:MI')::TIME;
                 room_id := info[3]::INTEGER;
+
+                IF course_duration = 4 AND start_time <> '14:00' THEN
+                    ROLLBACK;
+                END IF;
 
                 SELECT (seating_capacity + total_seating_capacity) FROM Rooms where rid = room_id INTO total_seating_capacity;
 
@@ -1450,6 +1887,9 @@
                 END IF;
 
             END LOOP;
+
+            INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
+            VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
 
             -- if no sessions info provided, seating capacity will be 0
             SELECT COALESCE(seating_capacity, 0) FROM Offerings WHERE launch_date = offering_launch_date AND course_id = cid INTO total_seating_capacity;
