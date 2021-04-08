@@ -154,7 +154,8 @@ CREATE TABLE Courses (
     title TEXT UNIQUE,
     course_description text,
     -- in terms of hours
-    duration INTEGER,
+    duration INTEGER
+        check (duration <= 4),
     FOREIGN KEY(course_area_name) REFERENCES Course_area(course_area_name)
         ON DELETE CASCADE
     -- decision to put on delete cascade because it was not specified that a course area cannot be deleted 
