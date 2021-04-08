@@ -98,7 +98,7 @@
     -- Insertions on full time emp or part time employee must happen before insertion on employee
     create or replace function employees_ft_pt_covering_check() returns Trigger as $$
     BEGIN
-        IF NOT EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid) THEN
+        IF NOT EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) AND NOT EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid) THEN
             RAISE NOTICE 'Employees table cannot be updated with Employee with no job assignment.';
             RETURN NULL;
         ELSE
@@ -114,7 +114,7 @@
     -- Insertions on full time instructor, managers and administrators must happen before insertion on full_time_employee
     create or replace function ft_fti_administrator_manager_covering_check() returns Trigger as $$
     BEGIN
-        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) THEN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) AND NOT EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) AND NOT EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) THEN
             RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
             RETURN NULL;
         ELSE
@@ -147,7 +147,7 @@
     -- Insertions on full time instructor and part time instructor must happen before insertion on instructor 
     create or replace function instructor_pti_fti_covering_check() returns Trigger as $$
     BEGIN
-        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) AND NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
             RAISE NOTICE 'Instructors table cannot be updated with Employee with no job assignment.';
             RETURN NULL;
         ELSE
@@ -880,6 +880,8 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             ELSE
                 RETURN NEW;
             END IF;
+        ELSE
+            RETURN NEW;
         END IF;
     END;
     $$ LANGUAGE plpgsql;
