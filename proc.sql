@@ -2171,10 +2171,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
     --||------------------ Esmanda --------------------||--
     -- FN 13
-    create or replace procedure buy_course_package(cid integer, pkg_id integer)
-    language plpgsql
-    as
-    $$
+    create or replace procedure buy_course_package(cid integer, pkg_id integer) as $$
     DECLARE
         cc_num TEXT;
         num_free_reg INTEGER;
@@ -2195,13 +2192,11 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             RAISE EXCEPTION 'Note: The promotional package is no longer available for sale';
         END IF;
     END;
-    $$;
+    $$ language plpgsql;
 
     -- FN 14
-    create or replace function get_my_course_package(cid integer, OUT result json) returns json
-        language plpgsql
-    as
-    $$
+    create or replace function get_my_course_package(cid integer, OUT result json)
+    returns json as $$
     DECLARE
         cc_num TEXT;
         pkg_id INTEGER;
@@ -2213,31 +2208,26 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         is_empty := (b_date IS NULL);
 
         IF (NOT is_empty) THEN
-            -- course package info
-            SELECT json_agg(t) INTO result FROM (
-                SELECT course_package_name, buy_date, price, num_free_registrations, num_remaining_redemptions
-                FROM Buys natural join Course_packages
-                WHERE package_id = pkg_id AND credit_card_num = cc_num AND buy_date = b_date) t;
-
             -- info for all redeemed sessions
             SELECT json_agg(r) INTO to_append FROM (
                 SELECT course_session_id, launch_date, course_id FROM Redeems natural join Course_Sessions
                 WHERE credit_card_num = cc_num AND package_id = pkg_id AND buy_date = b_date
                 ORDER BY session_date, start_time) r;
 
-            IF to_append IS NOT NULL THEN
-                result := result::jsonb || to_append::jsonb;
-            END IF;
+            -- course package info
+            SELECT json_agg(t) INTO result FROM (
+                SELECT course_package_name, buy_date, price, num_free_registrations,
+                       num_remaining_redemptions, to_append as session_info
+                FROM Buys natural join Course_packages
+                WHERE package_id = pkg_id AND credit_card_num = cc_num AND buy_date = b_date) t;
         END IF;
     END;
-    $$;
+    $$ language plpgsql;
 
     -- FN 15
     create or replace function get_available_course_offerings()
-        returns TABLE(c_title text, c_area_name text, c_start_date date, c_end_date date, reg_deadline date, c_fees decimal, num_remaining_seats integer)
-        language plpgsql
-    as
-    $$
+    returns TABLE(c_title text, c_area_name text, c_start_date date, c_end_date date, reg_deadline date, c_fees decimal, num_remaining_seats integer)
+    as $$
     DECLARE
         curs CURSOR FOR (SELECT * FROM Courses natural join Offerings ORDER BY registration_deadline, title);
         r RECORD;
@@ -2271,14 +2261,11 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         END LOOP;
         CLOSE curs;
     END;
-    $$;
+    $$ language plpgsql;
 
     -- FN 16
     create or replace function get_available_course_sessions(l_date date, cid integer)
-        returns TABLE(s_date date, s_start_time time, s_instructor integer, num_remaining_seats integer)
-        language plpgsql
-    as
-    $$
+    returns TABLE(s_date date, s_start_time time, s_instructor integer, num_remaining_seats integer) as $$
     DECLARE
         curs CURSOR FOR (SELECT * FROM Course_Sessions
         WHERE launch_date = l_date AND course_id = cid ORDER BY session_date, start_time);
@@ -2304,7 +2291,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         END LOOP;
         CLOSE curs;
     END;
-    $$;
+    $$ language plpgsql;
 
     -- FN 29
     CREATE OR REPLACE FUNCTION view_summary_report(num_months INTEGER)
