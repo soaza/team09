@@ -764,6 +764,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Employees
     CREATE OR REPLACE FUNCTION block_employees_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Employee not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -775,6 +776,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Part_time_Emp
     CREATE OR REPLACE FUNCTION block_pt_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Part-time employee not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -786,6 +788,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Full_time_Emp
     CREATE OR REPLACE FUNCTION block_ft_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Full-time employee not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -798,6 +801,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Managers
     CREATE OR REPLACE FUNCTION block_managers_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Manager not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -809,6 +813,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Administrators
     CREATE OR REPLACE FUNCTION block_administrators_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Administrator not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -820,6 +825,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Instructors
     CREATE OR REPLACE FUNCTION block_instructors_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Instructors not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -831,6 +837,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Part_time_instructors
     CREATE OR REPLACE FUNCTION block_pt_instructors_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Part-time instructors not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
@@ -842,6 +849,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- Full_time_instructors
     CREATE OR REPLACE FUNCTION block_ft_instructors_delete_func() RETURNS TRIGGER AS $$
     BEGIN
+        RAISE NOTICE 'Note: Full-time instructors not deleted, use remove_employee function to add the date departed instead.';
         RETURN NULL;
     END;
     $$ LANGUAGE plpgsql;
