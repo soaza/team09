@@ -39,7 +39,7 @@ CREATE TABLE Part_time_Emp (
     FOREIGN KEY(eid) REFERENCES Employees(eid) 
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT pt_employees_fkey foreign key(eid) references Employees 
+    CONSTRAINT pt_emp_fkey foreign key(eid) references Employees 
     deferrable initially immediate
 );
 
@@ -49,7 +49,7 @@ CREATE TABLE Full_time_Emp (
     FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT ft_employees_fkey foreign key(eid) references Employees 
+    CONSTRAINT ft_emp_fkey foreign key(eid) references Employees 
     deferrable initially immediate
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE Managers (
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT managers_employees_fkey foreign key(eid) references Full_time_Emp 
+    CONSTRAINT managers_ft_fkey foreign key(eid) references Full_time_Emp 
     deferrable initially immediate
 );
 
@@ -67,7 +67,7 @@ CREATE TABLE Administrators (
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT admin_employees_fkey foreign key(eid) references Full_time_Emp 
+    CONSTRAINT administrators_ft_fkey foreign key(eid) references Full_time_Emp 
     deferrable initially immediate
 );
 
@@ -89,7 +89,7 @@ CREATE TABLE Instructors (
     FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT instructors_fkey foreign key(eid) references Employees 
+    CONSTRAINT instructors_emp_fkey foreign key(eid) references Employees 
     deferrable initially immediate
 );
 
@@ -101,9 +101,9 @@ CREATE TABLE Part_time_instructors (
     FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT pt_instructors_fkey foreign key(eid) references Instructors
+    CONSTRAINT pti_instructors_fkey foreign key(eid) references Instructors
     deferrable initially immediate,
-    CONSTRAINT instructors_fkey foreign key(eid) references Part_Time_Emp
+    CONSTRAINT pti_pt_fkey foreign key(eid) references Part_Time_Emp
     deferrable initially immediate
 );
 
@@ -115,9 +115,9 @@ CREATE TABLE Full_time_instructors (
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT ft_instructors_fkey foreign key(eid) references Instructors
+    CONSTRAINT fti_instructors_fkey foreign key(eid) references Instructors
     deferrable initially immediate,
-    CONSTRAINT instructors_fkey foreign key(eid) references Full_time_Emp
+    CONSTRAINT fti_ft_fkey foreign key(eid) references Full_time_Emp
     deferrable initially immediate
 );
 
