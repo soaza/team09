@@ -294,7 +294,7 @@ INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date,
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-04', 4, 14, '2020-02-06', '2020-02-06', '2020-01-18', 66, 66, 73);
 -- for removing
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-09-25', 10, 20, '2022-05-25', '2022-05-25', '2021-10-14', 50, 50, 90);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 20, '2022-05-25', '9:00 AM', '10:00 AM', '2020-09-25', 10);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 30, '2022-05-25', '9:00 AM', '10:00 AM', '2020-09-25', 10);
 
 
 
