@@ -34,15 +34,17 @@
     --||------------------ TRIGGERS --------------------||--
 
     --||------------------ Neil --------------------||--
-    -- Trigger 5: Employee overlap Constraints
+    -- Trigger 5: Employee overlap and covering constraints 
     -- For insert, a full time employee cannot exist in any of the three tables from before.
     -- e.g. If I want to add a new administrator, I must check if the person is already a manager/instructor.
     -- However, an administrator cannot be added again to the administrator table as employees must be unique entities
     -- I need to check each individual table whether an employee exists because insertion on Full_time_Emp table happens before.
+
+    -- Following 2 functions are overlap constraints i.e. employee must be exclusively one of the categories
     create or replace function full_time_emp_overlap_check() returns Trigger as $$
     BEGIN
         IF (EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Instructors WHERE eid = NEW.eid)) THEN
-            RAISE NOTICE 'Cannot add employee to Administrator, is already a full time employee';
+            RAISE NOTICE 'Employee already exists';
             RETURN NULL;
         ELSE
             RETURN NEW;
@@ -67,7 +69,7 @@
     create or replace function pt_ft_emp_overlap_check() returns Trigger as $$
     BEGIN
         IF (EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) or EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid)) THEN
-            RAISE NOTICE 'Employee is already an Employee.';
+            RAISE NOTICE 'Employee already exists.';
             RETURN NULL;
         ELSE
             RETURN NEW;
@@ -82,6 +84,82 @@
     create trigger pt_ft_overlap_check
     before insert or update on Part_time_Emp
     for each row execute function pt_ft_overlap_check();
+
+    -- Following 4 triggers check the covering constraint, ensuring that if an employee exists higher up in the ISA structure
+    -- he must exist in the lower part of the ISA structure i.e. Employee tuple exists, then the employee must exists in either
+    -- Administrator, Manager, Instructor and similarly must exist in part time full time employee and must exist in part time full time instructor
+    -- Employees -> Part Time Emp, Full Time Emp
+    -- Full Time Employee -> Full time instructor, administrators, managers
+    -- Part time employees -> part time instructor
+    -- Instructor -> part time instructor, full time instructor
+    -- Job Assignment refers to an employee entity being in the lower part of the hierarchy 
+
+
+    -- Insertions on full time emp or part time employee must happen before insertion on employee
+    create or replace function employees_ft_pt_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_Emp WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_Emp WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql
+
+    create trigger employees_ft_pt_covering_check
+    before insert or update on Employees
+    for each row execute function employees_ft_pt_covering_check();
+
+    -- Insertions on full time instructor, managers and administrators must happen before insertion on full_time_employee
+    create or replace function ft_fti_administrator_manager_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Administrators WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Managers WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql
+
+    create trigger ft_fti_administrator_manager_covering_check
+    before insert or update on Full_time_Emp
+    for each row execute function ft_fti_administrator_manager_covering_check();
+
+    -- Insertions on part time instructor must happen before insertion on part_time_employee 
+    create or replace function pt_pti_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql
+
+    create trigger pt_pti_covering_check
+    before insert or update on Part_time_Emp
+    for each row execute function pt_pti_covering_check();
+
+
+    -- Insertions on full time instructor and part time instructor must happen before insertion on instructor 
+    create or replace function instructor_pti_fti_covering_check() returns Trigger as $$
+    BEGIN
+        IF NOT EXISTS(SELECT * FROM Full_time_instructors WHERE eid = NEW.eid) OR NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
+            RAISE NOTICE 'Instructors table cannot be updated with Employee with no job assignment.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql
+
+    create trigger instructor_pti_fti_covering_check
+    before insert or update on Instructors
+    for each row execute function instructor_pti_fti_covering_check();
+
 
     -- Trigger 2: Seating Capacity in Sessions cannot exceed room capacity
     -- Need to make trigger for total_seating_capacity from Rooms>=num_registrations witin the same course_id in Register and Redeems
@@ -595,36 +673,44 @@
         SELECT INTO employeeId max(eid) + 1 from Employees;
         arrayItems := cardinality(courseAreas);
         numCount := 1;
+        set constraints managers_ft_fkey deferred;
+        set constraints ft_emp_fkey deferred;
+        set constraints pti_instructors_fkey deferred;
+        set constraints pti_pt_fkey deferred;
+        set constraints pt_emp_fkey deferred;
+        set constraints fti_instructors_fkey deferred;
+        set constraints fti_ft_fkey deferred;
+        set constraints administrators_ft_fkey deferred;
         CASE
             WHEN category = 'MANAGER' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
             INSERT INTO Managers VALUES (employeeId);
+            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
             LOOP
                 EXIT WHEN numCount > arrayItems;
                 INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
                 numCount := numCount + 1;
             END LOOP;
             WHEN category = 'INSTRUCTOR' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
             IF partTime THEN
-                INSERT INTO Part_time_Emp VALUES (employeeId, salary);
-                INSERT INTO Instructors VALUES (employeeId);
                 INSERT INTO Part_time_instructors VALUES (employeeId);
-            ELSE
-                INSERT INTO Full_time_Emp VALUES (employeeId, salary);
                 INSERT INTO Instructors VALUES (employeeId);
+                INSERT INTO Part_time_Emp VALUES (employeeId, salary);
+            ELSE
                 INSERT INTO Full_time_instructors VALUES (employeeId);
+                INSERT INTO Instructors VALUES (employeeId);
+                INSERT INTO Full_time_Emp VALUES (employeeId, salary);
             END IF;
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
             LOOP
                 EXIT WHEN numCount > arrayItems;
                 INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
                 numCount := numCount + 1;
             END LOOP;
             WHEN category = 'ADMINISTRATOR' THEN
-            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
             INSERT INTO Administrators VALUES (employeeId);
+            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
         END CASE;
     END;
     $$;
