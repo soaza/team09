@@ -1,19 +1,3 @@
--- TODO : Add status field to package redemption (possible trigger)
--- TODO : Check primary key for Registration whether to include cust_id and course_session_id
--- Trigger 1: customers must register before registration_deadline Offerings
--- Trigger 2: total seating_capacity from Rooms >= num_registrations with the same course_id in Register and Redeems
--- Trigger 3: overlapping of start_time-end_time in CourseSessions
-    -- each room used to conduct at most 1 course session at any time
--- Trigger 4: Each course offering has a start date and an end date that
-    -- is determined by the dates of its earliest and latest sessions, respectively
--- Trigger 5: Overlap constraint for Employees is either Manager,Administrator or Instructor
--- Trigger 6: Instructor who is assigned to teach a course session must be specialized in that course area
--- Trigger 7:Each instructor can teach at most one course session at any hour.
-    -- Each instructor must not be assigned to teach two consecutive course sessions;
-    -- i.e. there must be at least one hour of break between any two course sessions that the instructor is teaching.
--- Trigger 8:Each part-time instructor must not teach more than 30 hours for each month.
--- trigger 9: duration of course = duration of course session
-
 DROP TABLE IF EXISTS
 Employees
 ,Part_time_Emp
@@ -54,7 +38,9 @@ CREATE TABLE Part_time_Emp (
     hourly_rate DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid) 
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT pt_employees_fkey foreign key(eid) references Employees 
+    deferrable initially immediate
 );
 
 CREATE TABLE Full_time_Emp (
@@ -62,21 +48,27 @@ CREATE TABLE Full_time_Emp (
     month_salary DECIMAL,
     FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT ft_employees_fkey foreign key(eid) references Employees 
+    deferrable initially immediate
 );
 
 CREATE TABLE Managers (
     eid INTEGER PRIMARY KEY,
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT managers_employees_fkey foreign key(eid) references Full_time_Emp 
+    deferrable initially immediate
 );
 
 CREATE TABLE Administrators (
     eid INTEGER PRIMARY KEY,
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid) 
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT admin_employees_fkey foreign key(eid) references Full_time_Emp 
+    deferrable initially immediate
 );
 
 CREATE TABLE Pay_slips (
@@ -96,7 +88,9 @@ CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
     FOREIGN KEY(eid) REFERENCES Employees(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT instructors_fkey foreign key(eid) references Employees 
+    deferrable initially immediate
 );
 
 CREATE TABLE Part_time_instructors (
@@ -106,7 +100,11 @@ CREATE TABLE Part_time_instructors (
         ON UPDATE CASCADE,
     FOREIGN KEY(eid) REFERENCES Part_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT pt_instructors_fkey foreign key(eid) references Instructors
+    deferrable initially immediate,
+    CONSTRAINT instructors_fkey foreign key(eid) references Part_Time_Emp
+    deferrable initially immediate
 );
 
 CREATE TABLE Full_time_instructors (
@@ -116,7 +114,11 @@ CREATE TABLE Full_time_instructors (
         ON UPDATE CASCADE,
     FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT ft_instructors_fkey foreign key(eid) references Instructors
+    deferrable initially immediate,
+    CONSTRAINT instructors_fkey foreign key(eid) references Full_time_Emp
+    deferrable initially immediate
 );
 
 CREATE TABLE Course_area (
