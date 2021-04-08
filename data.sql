@@ -9,47 +9,47 @@ INSERT INTO Rooms (rid, room_location, seating_capacity) VALUES (8, '03-682', '2
 INSERT INTO Rooms (rid, room_location, seating_capacity) VALUES (9, '04-484', '77');
 INSERT INTO Rooms (rid, room_location, seating_capacity) VALUES (10, '05-180', '48');
 
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (1,'Lana','250-9772 Litora St.','94637110','ipsum.dolor.sit@posuerecubiliaCurae.co.uk','2020-08-09 20:45:21','2021-11-24 11:36:06');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (2,'Stone','P.O. Box 695, 3874 Nam Avenue','97716276','Sed.congue@Etiam.ca','2020-09-14 17:26:07','2022-03-10 19:44:24');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (3,'Rana','P.O. Box 305, 9870 Vehicula St.','99558718','vitae.posuere@eunulla.org','2020-07-17 15:32:11','2021-08-13 23:22:25');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (4,'Shay','P.O. Box 236, 4179 Elit. Street','93092594','penatibus.et.magnis@sedorcilobortis.edu','2020-06-26 17:05:55','2021-05-30 07:40:00');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (5,'Rylee','P.O. Box 791, 680 Sapien. Ave','96989079','tempor@luctus.com','2021-02-12 06:29:33','2021-08-15 14:05:17');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (6,'Beck','P.O. Box 266, 708 Mauris Av.','93075463','et.magnis@mattis.com','2020-09-11 12:28:36','2022-01-10 05:01:49');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (7,'Micah','P.O. Box 591, 3820 Netus Ave','95606636','consectetuer.adipiscing.elit@sagittis.edu','2020-04-10 22:28:01','2021-05-07 16:00:22');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (8,'Justine','Ap #445-2105 Aenean Street','90013317','consectetuer.rhoncus.Nullam@massa.net','2020-04-12 08:56:13','2022-01-18 16:01:55');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (9,'Fuller','Ap #583-8652 Quisque Rd.','93665122','nec@Utnecurna.co.uk','2020-10-13 05:58:06','2022-03-11 16:54:47');
-INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (10,'Ifeoma','P.O. Box 526, 1158 Eget, Street','98373247','dictum.sapien@placeratorci.co.uk','2020-07-09 23:17:17','2022-02-14 02:35:02');
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (1,'Lana','250-9772 Litora St.','94637110','ipsum.dolor.sit@posuerecubiliaCurae.co.uk','2020-08-09 20:45:21',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (2,'Stone','P.O. Box 695, 3874 Nam Avenue','97716276','Sed.congue@Etiam.ca','2020-09-14 17:26:07',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (3,'Rana','P.O. Box 305, 9870 Vehicula St.','99558718','vitae.posuere@eunulla.org','2020-07-17 15:32:11',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (4,'Shay','P.O. Box 236, 4179 Elit. Street','93092594','penatibus.et.magnis@sedorcilobortis.edu','2020-06-26 17:05:55',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (5,'Rylee','P.O. Box 791, 680 Sapien. Ave','96989079','tempor@luctus.com','2021-02-12 06:29:33',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (6,'Beck','P.O. Box 266, 708 Mauris Av.','93075463','et.magnis@mattis.com','2020-09-11 12:28:36',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (7,'Micah','P.O. Box 591, 3820 Netus Ave','95606636','consectetuer.adipiscing.elit@sagittis.edu','2020-04-10 22:28:01',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (8,'Justine','Ap #445-2105 Aenean Street','90013317','consectetuer.rhoncus.Nullam@massa.net','2020-04-12 08:56:13',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (9,'Fuller','Ap #583-8652 Quisque Rd.','93665122','nec@Utnecurna.co.uk','2020-10-13 05:58:06',null);
+INSERT INTO Employees (eid,emp_name,emp_address,phone,email,join_date,depart_date) VALUES (10,'Ifeoma','P.O. Box 526, 1158 Eget, Street','98373247','dictum.sapien@placeratorci.co.uk','2020-07-09 23:17:17',null);
 
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (11, 'Myca', '222 Prentice Court', '91609782', 'mcrumba@ucsd.edu', '2020-10-17', '2021-03-25');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (12, 'Leshia', '8573 Oak Lane', '98984689', 'ljulianb@exblog.jp', '2020-05-14', '2021-02-04');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (13, 'Chrisy', '5932 Farmco Center', '94571510', 'civashintsovc@irs.gov', '2020-11-19', '2021-03-04');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (14, 'Lurette', '5 Red Cloud Point', '99447833', 'lnewalld@buzzfeed.com', '2020-12-07', '2021-02-16');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (15, 'Oran', '2627 Center Park', '91669419', 'oivasechkoe@parallels.com', '2020-06-27', '2021-02-13');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (16, 'Aleece', '56391 Pond Alley', '91206264', 'afakeleyf@epa.gov', '2020-10-02', '2021-03-19');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (17, 'Boonie', '150 6th Pass', '96095360', 'bdodsg@craigslist.org', '2020-11-27', '2021-02-04');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (18, 'Jessalin', '7651 Hoffman Lane', '97637386', 'jstedmondh@mit.edu', '2020-07-20', '2021-03-07');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (19, 'Thaddeus', '671 Kenwood Alley', '99306231', 'tfriesei@usa.gov', '2020-04-05', '2021-03-16');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (20, 'Brittni', '5614 Marquette Hill', '95787229', 'bhuiej@hp.com', '2020-04-22', '2021-02-12');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (21, 'Shannen', '5 La Follette Park', '96263207', 'sdavauxk@sourceforge.net', '2020-05-13', '2021-02-27');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (22, 'Kerk', '3 Jana Street', '96986109', 'kgodlemanl@newsvine.com', '2020-06-07', '2021-02-02');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (23, 'Vitia', '7 Westport Crossing', '94201121', 'vwellsmanm@ihg.com', '2020-08-15', '2021-02-26');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (24, 'Paulita', '34695 Atwood Crossing', '98343304', 'pcorraon@xrea.com', '2020-07-22', '2021-03-16');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (25, 'Louie', '7686 Colorado Park', '92660829', 'lwallo@flickr.com', '2020-11-24', '2021-03-09');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (26, 'Ainslie', '12648 Graedel Court', '97414260', 'atuddenhamp@economist.com', '2020-11-08', '2021-02-21');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (27, 'Vinita', '86414 Towne Trail', '92928392', 'vditchq@state.gov', '2020-09-22', '2021-02-27');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (28, 'Eolanda', '8 Parkside Alley', '99781516', 'erichmontr@123-reg.co.uk', '2020-09-19', '2021-03-15');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (29, 'Edan', '57530 Norway Maple Drive', '93203408', 'elangthornes@slate.com', '2020-08-14', '2021-02-27');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (30, 'Eddie', '49506 Lyons Court', '96347606', 'elissandret@wikia.com', '2020-10-07', '2021-03-03');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (31, 'Nora', '1730 Maple Pass', '92512505', 'nstandringu@hud.gov', '2020-09-14', '2021-02-12');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (32, 'Sharity', '402 Loomis Pass', '98102548', 'ssumptonv@epa.gov', '2020-07-07', '2021-02-25');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (33, 'Deeyn', '156 Sloan Place', '93382142', 'dwalshew@jiathis.com', '2020-04-25', '2021-03-15');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (34, 'Noelani', '82690 Jenifer Drive', '92115424', 'nszimonx@mashable.com', '2020-11-30', '2021-03-09');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (35, 'Archie', '521 Northview Drive', '92158014', 'ameindly@nih.gov', '2020-09-27', '2021-03-07');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (36, 'Rob', '7375 Sloan Hill', '93946554', 'rharvardz@biblegateway.com', '2020-07-17', '2021-03-23');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (37, 'Trix', '8 Pepper Wood Circle', '92798664', 'thickinbottom10@bravesites.com', '2020-08-15', '2021-03-19');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (38, 'Edita', '7245 Montana Circle', '92053365', 'epatmore11@cbsnews.com', '2020-03-30', '2021-02-25');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (39, 'Amberly', '30470 Annamark Court', '95772467', 'alanders12@upenn.edu', '2020-04-01', '2021-03-19');
-INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (40, 'Norine', '17 Barnett Hill', '96419664', 'nminards13@chron.com', '2020-10-31', '2021-03-02');
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (11, 'Myca', '222 Prentice Court', '91609782', 'mcrumba@ucsd.edu', '2020-10-17', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (12, 'Leshia', '8573 Oak Lane', '98984689', 'ljulianb@exblog.jp', '2020-05-14', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (13, 'Chrisy', '5932 Farmco Center', '94571510', 'civashintsovc@irs.gov', '2020-11-19', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (14, 'Lurette', '5 Red Cloud Point', '99447833', 'lnewalld@buzzfeed.com', '2020-12-07', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (15, 'Oran', '2627 Center Park', '91669419', 'oivasechkoe@parallels.com', '2020-06-27', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (16, 'Aleece', '56391 Pond Alley', '91206264', 'afakeleyf@epa.gov', '2020-10-02', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (17, 'Boonie', '150 6th Pass', '96095360', 'bdodsg@craigslist.org', '2020-11-27', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (18, 'Jessalin', '7651 Hoffman Lane', '97637386', 'jstedmondh@mit.edu', '2020-07-20', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (19, 'Thaddeus', '671 Kenwood Alley', '99306231', 'tfriesei@usa.gov', '2020-04-05', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (20, 'Brittni', '5614 Marquette Hill', '95787229', 'bhuiej@hp.com', '2020-04-22', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (21, 'Shannen', '5 La Follette Park', '96263207', 'sdavauxk@sourceforge.net', '2020-05-13', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (22, 'Kerk', '3 Jana Street', '96986109', 'kgodlemanl@newsvine.com', '2020-06-07', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (23, 'Vitia', '7 Westport Crossing', '94201121', 'vwellsmanm@ihg.com', '2020-08-15', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (24, 'Paulita', '34695 Atwood Crossing', '98343304', 'pcorraon@xrea.com', '2020-07-22', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (25, 'Louie', '7686 Colorado Park', '92660829', 'lwallo@flickr.com', '2020-11-24', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (26, 'Ainslie', '12648 Graedel Court', '97414260', 'atuddenhamp@economist.com', '2020-11-08', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (27, 'Vinita', '86414 Towne Trail', '92928392', 'vditchq@state.gov', '2020-09-22', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (28, 'Eolanda', '8 Parkside Alley', '99781516', 'erichmontr@123-reg.co.uk', '2020-09-19', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (29, 'Edan', '57530 Norway Maple Drive', '93203408', 'elangthornes@slate.com', '2020-08-14', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (30, 'Eddie', '49506 Lyons Court', '96347606', 'elissandret@wikia.com', '2020-10-07', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (31, 'Nora', '1730 Maple Pass', '92512505', 'nstandringu@hud.gov', '2020-09-14',null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (32, 'Sharity', '402 Loomis Pass', '98102548', 'ssumptonv@epa.gov', '2020-07-07', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (33, 'Deeyn', '156 Sloan Place', '93382142', 'dwalshew@jiathis.com', '2020-04-25', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (34, 'Noelani', '82690 Jenifer Drive', '92115424', 'nszimonx@mashable.com', '2020-11-30', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (35, 'Archie', '521 Northview Drive', '92158014', 'ameindly@nih.gov', '2020-09-27', null);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (36, 'Rob', '7375 Sloan Hill', '93946554', 'rharvardz@biblegateway.com', '2020-07-17', NULL);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (37, 'Trix', '8 Pepper Wood Circle', '92798664', 'thickinbottom10@bravesites.com', '2020-08-15', NULL);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (38, 'Edita', '7245 Montana Circle', '92053365', 'epatmore11@cbsnews.com', '2020-03-30', NULL);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (39, 'Amberly', '30470 Annamark Court', '95772467', 'alanders12@upenn.edu', '2020-04-01', NULL);
+INSERT INTO Employees (eid, emp_name, emp_address, phone, email, join_date, depart_date) VALUES (40, 'Norine', '17 Barnett Hill', '96419664', 'nminards13@chron.com', '2020-10-31', NULL);
 
 -- Full Time Employees
 INSERT INTO Full_Time_Emp (eid, month_salary) VALUES (1, 1028);
@@ -292,6 +292,11 @@ INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date,
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-02', 2, 12, '2020-02-04', '2020-02-04', '2020-01-16', 66, 66, 73);
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-03', 3, 13, '2020-02-05', '2020-02-05', '2020-01-17', 66, 66, 73);
 INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-01-04', 4, 14, '2020-02-06', '2020-02-06', '2020-01-18', 66, 66, 73);
+-- for removing
+INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees) VALUES ('2020-09-25', 10, 20, '2022-05-25', '2022-05-25', '2021-10-14', 50, 50, 90);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 10, 20, '2022-05-25', '9:00 AM', '10:00 AM', '2020-09-25', 10);
+
+
 
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 1, 21, '2021-07-21', '9:00 AM', '10:00 AM', '2021-01-26', 1);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 2, 22, '2021-06-24', '4:00 PM', '5:00 PM', '2020-05-14', 2);
@@ -308,7 +313,7 @@ INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_ti
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 2, 22, '2021-06-25', '4:00 PM', '5:00 PM', '2021-03-03', 2);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 3, 23, '2021-07-14', '2:00 PM', '4:00 PM', '2020-04-04', 3);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 4, 24, '2021-07-09', '2:00 PM', '5:00 PM', '2020-05-05', 4);
-INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '4:00 PM', '6:00 PM', '2020-06-06', 5);
+INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 5, 25, '2021-12-24', '2:00 PM', '4:00 PM', '2020-06-06', 5);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 6, 36, '2021-07-23', '4:00 PM', '6:00 PM', '2020-06-17', 6);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 7, 37, '2022-06-28', '9:00 AM', '10:00 AM', '2020-01-20', 7);
 INSERT INTO Course_Sessions (course_session_id, rid, eid, session_date, start_time, end_time, launch_date, course_id) VALUES (1, 8, 38, '2021-08-06', '2:00 PM', '5:00 PM', '2020-06-08', 8);

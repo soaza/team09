@@ -57,7 +57,7 @@
     create trigger manager_overlap_check
     before insert or update on Managers
     for each row execute function full_time_emp_overlap_check();
-    
+
     create trigger instructor_overlap_check
     before insert or update on Instructors
     for each row execute function full_time_emp_overlap_check();
@@ -77,11 +77,11 @@
 
     create trigger pt_ft_overlap_check
     before insert or update on Full_time_Emp
-    for each row execute function pt_ft_overlap_check();
+    for each row execute function pt_ft_emp_overlap_check();
 
     create trigger pt_ft_overlap_check
     before insert or update on Part_time_Emp
-    for each row execute function pt_ft_overlap_check();
+    for each row execute function pt_ft_emp_overlap_check();
 
     -- Trigger 2: Seating Capacity in Sessions cannot exceed room capacity
     -- Need to make trigger for total_seating_capacity from Rooms>=num_registrations witin the same course_id in Register and Redeems
@@ -171,14 +171,14 @@
                 FROM (Course_Sessions NATURAL JOIN Courses) T
                 WHERE session_date = NEW.session_date
                 AND rid = NEW.rid
-                AND (T.launch_date <> NEW.launch_date OR T.course_id <> NEW.course_id)
+                AND  (T.course_session_id <> NEW.course_session_id OR T.launch_date <> NEW.launch_date OR T.course_id <> NEW.course_id)
                 -- new session ends in between a session
                 AND (
-                        (EXTRACT(hours FROM start_time) <= EXTRACT(hours FROM NEW.start_time) + new_session_duration
-                            AND EXTRACT(hours FROM NEW.start_time) + new_session_duration <= EXTRACT(hours FROM end_time))
+                        (EXTRACT(hours FROM start_time) < EXTRACT(hours FROM NEW.start_time) + new_session_duration
+                            AND EXTRACT(hours FROM NEW.start_time) + new_session_duration < EXTRACT(hours FROM end_time))
                         -- new session starts in between a session
                         OR
-                        (start_time <= NEW.start_time AND NEW.start_time <= end_time)
+                        (start_time < NEW.start_time AND NEW.start_time < end_time)
                     ))
         THEN
             RAISE NOTICE 'New course_session timing overlaps with existing timings,each room used to conduct at most 1 course session at any time ';
@@ -301,7 +301,7 @@
                 SELECT *
                 FROM Employees
                 WHERE eid = NEW.eid
-                AND depart_date > NEW.session_date
+                AND (depart_date > NEW.session_date or depart_date is null)
             ) THEN
             RAISE NOTICE 'Course_session date must be before depart_date of employee.';
             RETURN NULL;
@@ -338,6 +338,7 @@
             WHERE session_date = NEW.session_date
             AND launch_date = NEW.launch_date
             AND course_id = NEW.course_id
+            AND course_session_id <> NEW.course_session_id
             AND
             (
                 (
@@ -1740,6 +1741,7 @@
             ELSE
                 RETURN NEW;
             END IF;
+            RETURN NEW;
         END IF;
     END;
     $$ LANGUAGE plpgsql;
