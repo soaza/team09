@@ -1865,9 +1865,10 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             instructor_id INTEGER;
 
             course_duration INTEGER;
+            earliest_session DATE;
+            latest_session DATE;
 
         BEGIN
-            set constraints sessions_offerings_fkey deferred;
 
             session_number := 0;
             total_seating_capacity := 0;
@@ -1882,7 +1883,17 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 room_id := info[3]::INTEGER;
 
                 IF course_duration = 4 AND start_time <> '14:00' THEN
+                    RAISE NOTICE 'Note: Unable to add course offering, session information not valid.';
                     ROLLBACK;
+                END IF;
+
+                IF session_number = 1 THEN
+                    earliest_session = session_date;
+                    latest_session = session_date;
+                ELSIF session_date < earliest_session THEN
+                    earliest_session = session_date;
+                ELSIF session_date > latest_session THEN
+                    latest_session = session_date;
                 END IF;
 
                 SELECT (seating_capacity + total_seating_capacity) FROM Rooms where rid = room_id INTO total_seating_capacity;
@@ -1900,11 +1911,11 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
             END LOOP;
 
-            INSERT INTO Offerings (launch_date, course_id, eid, registration_deadline, target_number_registrations, fees)
-            VALUES (offering_launch_date, cid, admin_eid, offering_registration_deadline, offering_target_number_registrations, offering_fees);
+            INSERT INTO Offerings (launch_date, course_id, eid, actual_start_date, end_date, registration_deadline, target_number_registrations, seating_capacity, fees)
+            VALUES (offering_launch_date, cid, admin_eid, earliest_session, latest_session, offering_registration_deadline, offering_target_number_registrations, total_seating_capacity, offering_fees);
 
             -- if no sessions info provided, seating capacity will be 0
-            SELECT COALESCE(seating_capacity, 0) FROM Offerings WHERE launch_date = offering_launch_date AND course_id = cid INTO total_seating_capacity;
+            -- SELECT COALESCE(seating_capacity, 0) FROM Offerings WHERE launch_date = offering_launch_date AND course_id = cid INTO total_seating_capacity;
 
             -- 'Note that the seating capacity of the course offering must be at least equal to the course offering’s target number of registrations.'
             IF offering_target_number_registrations > total_seating_capacity THEN
