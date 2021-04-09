@@ -1113,7 +1113,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
     -- 3. add_customer:
     -- This function does not trigger any triggers!
- create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum integer, cardexpirydate date, cardcvv integer)
+ create or replace procedure add_customer(custname text, homeaddress text, contactnumber integer, custemail text, creditcardnum TEXT, cardexpirydate date, cardcvv integer)
     as
     $$
     DECLARE
@@ -1130,7 +1130,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     -- 4. update_credit_card:
     -- This function does not trigger any triggers!
     CREATE OR REPLACE PROCEDURE update_credit_card
-        (custId INT, creditCardNum INTEGER, cardExpiryDate DATE, cardCVV INTEGER)
+        (custId INT, creditCardNum TEXT, cardExpiryDate DATE, cardCVV INTEGER)
         AS $$
     BEGIN
         INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
@@ -1275,7 +1275,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     as $$
     DECLARE
         currentSessionDate date;
-        activeCreditCardNum INTEGER;
+        activeCreditCardNum TEXT;
     BEGIN
         /*Checking if the registration time has lapsed and if the customer has takent the course before, then update accordingly, the seating trigger will check for available seat.*/
         select session_date INTO currentSessionDate from Course_Sessions where launch_date = launchDate and course_id = courseId and course_session_id = courseSessionId;
