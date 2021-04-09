@@ -131,7 +131,7 @@
     create or replace function pt_pti_covering_check() returns Trigger as $$
     BEGIN
         IF NOT EXISTS(SELECT * FROM Part_time_instructors WHERE eid = NEW.eid) THEN
-            RAISE NOTICE 'Full Time Employees table cannot be updated with Employee with no job assignment.';
+            RAISE NOTICE 'Part Time Employees table cannot be updated with Employee with no job assignment.';
             RETURN NULL;
         ELSE
             RETURN NEW;
@@ -222,8 +222,33 @@
     before insert or update on Redeems
     for each row execute function check_seating_capacity_redeems();
 
+    -- Trigger: registration_deadline must be before depart_date of administrator
+    -- TABLE: Offerings
+    create function registration_deadline_before_depart_date() returns trigger
+        language plpgsql
+    as
+    $$
+    BEGIN
+        IF NOT EXISTS(
+                SELECT *
+                FROM Employees
+                WHERE eid = NEW.eid
+                AND (depart_date > NEW.registration_deadline or depart_date is null)
+            ) THEN
+            RAISE NOTICE 'Registration deadline must be before depart date of Administrator.';
+            RETURN NULL;
+        ELSE
+            RETURN NEW;
+        END IF;
+    END;
+    $$;
 
 
+    create trigger registration_deadline_before_depart_date
+        before insert or update
+        on Offerings
+        for each row
+    execute procedure registration_deadline_before_depart_date();
     --||------------------ Kim Guan --------------------||--
 
     -- Trigger 3: overlapping of start_time-end_time in Course_sessions as each room used to conduct
@@ -1044,7 +1069,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
             numCount := numCount + 1;
             END LOOP;
-
             IF partTime THEN
                 INSERT INTO Part_time_instructors VALUES (employeeId);
                 INSERT INTO Instructors VALUES (employeeId);
@@ -1072,23 +1096,27 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
     -- 2. remove_employee:
     -- This function does not trigger any triggers!
-    create procedure remove_employee(employeeid integer, departdate date)
+    create or replace procedure remove_employee(employeeid integer, departdate date)
         language plpgsql
     as
     $$
     BEGIN
         IF EXISTS(SELECT * FROM Administrators WHERE eid = employeeId) THEN
-            IF NOT EXISTS(SELECT departDate < any (SELECT registration_deadline FROM Offerings WHERE eid = employeeId)) THEN
+            IF NOT EXISTS(SELECT * from Offerings where eid = employeeId and departDate < registration_deadline) THEN
                 UPDATE Employees
                 SET depart_date = departDate
                 WHERE eid = employeeId;
+            ELSE
+                RAISE NOTICE 'This Administrator still has Course Offerings to handle and cannot leave on this date!';
             END IF;
         END IF;
         IF EXISTS(SELECT * FROM Instructors WHERE eid = employeeId) THEN
-            IF NOT EXISTS(SELECT departDate < any (SELECT session_date FROM Course_Sessions WHERE eid = employeeId)) THEN
+            IF NOT EXISTS(SELECT * from Course_Sessions where eid = employeeId and departDate < session_date) THEN
                 UPDATE Employees
                 SET depart_date = departDate
                 WHERE eid = employeeId;
+            ELSE
+                RAISE NOTICE 'This Instructor still has Course Sessions to conduct and cannot leave on this date!';
             END IF;
         END IF;
         IF EXISTS(SELECT * FROM Managers WHERE eid = employeeId) THEN
@@ -1096,6 +1124,8 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 UPDATE Employees
                 SET depart_date = departDate
                 WHERE eid = employeeId;
+            ELSE
+                RAISE NOTICE 'This Manager is still handling a course area and cannot leave!';
             END IF;
         END IF;
     END;
@@ -1131,7 +1161,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
 
 
     -- 17. register_session:
-    create procedure register_session(custid integer, launchdate date, courseid integer, coursesessionid integer, paymentmethod text)
+    create or replace procedure register_session(custid integer, launchdate date, courseid integer, coursesessionid integer, paymentmethod text)
         language plpgsql
     as
     $$
@@ -1170,6 +1200,9 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                         RAISE NOTICE 'There are no active packages.';
                     END IF;
                 END IF;
+                IF paymentMethod <> 'REDEMPTION' AND paymentMethod <> 'CREDIT CARD' THEN
+                    RAISE NOTICE 'Unknown payment method. Registration failed.';
+                END IF;
             ELSE
                 RAISE NOTICE 'Customer is already taking course!';
             END IF;
@@ -1200,7 +1233,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         */
     -- 18. get_my_registrations:
     -- CHANGED
-    create function get_my_registrations(custid integer)
+    create or replace function get_my_registrations(custid integer)
         returns TABLE(coursename text, coursefees numeric, sessiondate date, sessionstarthour integer, sessionduration interval, instructorname text)
         language plpgsql
     as
@@ -1287,6 +1320,8 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 UPDATE Redeems
                 SET course_session_id = courseSessionId
                 WHERE credit_card_num = any(select credit_card_num from Credit_cards where cust_id = custId) and launch_date = launchDate and course_id = courseId;
+            ELSE
+                RAISE NOTICE 'Customer with such a registration does not exist.';
             END IF;
         END IF;
     END;
