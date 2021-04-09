@@ -1017,7 +1017,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     --
     -- /*Arrays are 1 based LOL */
     -- 1. add_employee:
-    create procedure add_employee(empname text, homeaddress text, contactnumber integer, email text, salary numeric, datejoined date, category text, courseareas text[], parttime boolean)
+    create or replace procedure add_employee(empname text, homeaddress text, contactnumber integer, email text, salary numeric, datejoined date, category text, courseareas text[], parttime boolean)
         language plpgsql
     as
     $$
@@ -1029,48 +1029,40 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         SELECT INTO employeeId max(eid) + 1 from Employees;
         arrayItems := cardinality(courseAreas);
         numCount := 1;
-        set constraints managers_ft_fkey deferred;
-        set constraints ft_emp_fkey deferred;
-        set constraints pti_instructors_fkey deferred;
-        set constraints pti_pt_fkey deferred;
-        set constraints pt_emp_fkey deferred;
-        set constraints fti_instructors_fkey deferred;
-        set constraints fti_ft_fkey deferred;
-        set constraints administrators_ft_fkey deferred;
-        set constraints specialises_instructors_fkey deferred;
-        CASE
-            WHEN category = 'MANAGER' THEN
-                INSERT INTO Managers VALUES (employeeId);
-                INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-                LOOP
-                    EXIT WHEN numCount > arrayItems;
-                    INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
-                    numCount := numCount + 1;
-                END LOOP;
-            WHEN category = 'INSTRUCTOR' THEN
-                LOOP
+        IF category = 'MANAGER' THEN
+            INSERT INTO Managers VALUES (employeeId);
+            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+            LOOP
                 EXIT WHEN numCount > arrayItems;
-                INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
+                INSERT INTO Course_area VALUES (courseAreas[numCount], employeeId);
                 numCount := numCount + 1;
-                END LOOP;
+            END LOOP;
+        ELSIF category = 'INSTRUCTOR' THEN
+            LOOP
+            EXIT WHEN numCount > arrayItems;
+            INSERT INTO Specialises VALUES (employeeId, courseAreas[numCount]);
+            numCount := numCount + 1;
+            END LOOP;
 
-                IF partTime THEN
-                    INSERT INTO Part_time_instructors VALUES (employeeId);
-                    INSERT INTO Instructors VALUES (employeeId);
-                    INSERT INTO Part_time_Emp VALUES (employeeId, salary);
-                ELSE
-                    INSERT INTO Full_time_instructors VALUES (employeeId);
-                    INSERT INTO Instructors VALUES (employeeId);
-                    INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-                END IF;
-                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-
-            WHEN category = 'ADMINISTRATOR' THEN
-                INSERT INTO Administrators VALUES (employeeId);
+            IF partTime THEN
+                INSERT INTO Part_time_instructors VALUES (employeeId);
+                INSERT INTO Instructors VALUES (employeeId);
+                INSERT INTO Part_time_Emp VALUES (employeeId, salary);
+            ELSE
+                INSERT INTO Full_time_instructors VALUES (employeeId);
+                INSERT INTO Instructors VALUES (employeeId);
                 INSERT INTO Full_time_Emp VALUES (employeeId, salary);
-                INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
-        END CASE;
+            END IF;
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+
+        ELSIF category = 'ADMINISTRATOR' THEN
+            INSERT INTO Administrators VALUES (employeeId);
+            INSERT INTO Full_time_Emp VALUES (employeeId, salary);
+            INSERT INTO Employees VALUES (employeeId, empName, homeAddress, contactNumber, email, dateJoined, NULL);
+        ELSE
+            RAISE NOTICE 'Note: No insertion of employees done due to unknown employee category.';
+        END IF;
     END;
     $$;
 
@@ -1119,7 +1111,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
     DECLARE
         custId INT;
     BEGIN
-        set constraints creditcards_customers_fkey deferred;
         select into custId max(cust_id) + 1 from Customers;
         INSERT INTO Credit_cards VALUES (creditCardNum, cardCVV, cardExpiryDate, CURRENT_DATE, custId);
         INSERT INTO Customers VALUES (custId, homeAddress, contactNumber, custName, custEmail);
