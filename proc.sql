@@ -2167,7 +2167,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             )
 
         -- check for every pair, offering w later start date higher number of registration
-        SELECT OR0.course_id, title, course_area_name, count(*), MAX(num_regs) as max_num_regs
+        SELECT OR0.course_id, title, course_area_name, count(*)::INTEGER, MAX(num_regs)::INTEGER as max_num_regs
         FROM OfferingsRegistrations OR0 INNER JOIN Courses ON OR0.course_id = Courses.course_id
         WHERE NOT EXISTS (
             SELECT 1
