@@ -1629,7 +1629,12 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 WHERE launch_date = find_launch_date
                 AND course_id = find_course_id
                 AND course_session_id = session_number;
+
+            ELSE
+                RAISE NOTICE 'Note: Course session not removed as there is at least one registration.';
             END IF;
+        ELSE
+            RAISE NOTICE 'Note: Course session not removed as it has started.';
         END IF;
 
     END;
