@@ -715,6 +715,8 @@ AS $$
 BEGIN
     IF (SELECT count(*) FROM Credit_cards WHERE cust_id = OLD.cust_id) > 1 THEN
         RETURN OLD;
+    ELSIF (NOT EXISTS(SELECT 1 FROM Customers WHERE cust_id = OLD.cust_id)) THEN
+        RETURN OLD;
     ELSE
         RAISE NOTICE 'Note: Credit card not deleted as it is the only credit card for this customer.';
         RETURN NULL;
@@ -748,6 +750,8 @@ CREATE OR REPLACE FUNCTION delete_session_func() RETURNS TRIGGER
 AS $$
 BEGIN
     IF (SELECT count(*) FROM Course_sessions WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id) > 1 THEN
+        RETURN OLD;
+    ELSIF (NOT EXISTS(SELECT 1 FROM Offerings WHERE launch_date = OLD.launch_date AND course_id = OLD.course_id)) THEN
         RETURN OLD;
     ELSE
         RAISE NOTICE 'Note: Course session not deleted as it is the only session for this offering.';
