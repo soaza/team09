@@ -2274,22 +2274,26 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
         num_registrations INTEGER;
         num_redemptions INTEGER;
     BEGIN
-        OPEN curs;
-        LOOP
-            FETCH curs INTO r;
-            EXIT WHEN NOT FOUND;
-            s_date := r.session_date;
-            s_start_time := r.start_time;
-            s_instructor := r.eid;
-            SELECT seating_capacity INTO s_capacity FROM Rooms WHERE rid = r.rid;
-            SELECT COUNT(*) INTO num_registrations FROM REGISTERS
-            WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
-            SELECT COUNT(*) INTO num_redemptions FROM REDEEMS
-            WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
-            num_remaining_seats := s_capacity - num_registrations - num_redemptions;
-            RETURN NEXT;
-        END LOOP;
-        CLOSE curs;
+        IF (SELECT registration_deadline FROM Offerings WHERE launch_date = l_date AND course_id = cid) > CURRENT_DATE THEN
+            OPEN curs;
+            LOOP
+                FETCH curs INTO r;
+                EXIT WHEN NOT FOUND;
+                s_date := r.session_date;
+                s_start_time := r.start_time;
+                s_instructor := r.eid;
+                SELECT seating_capacity INTO s_capacity FROM Rooms WHERE rid = r.rid;
+                SELECT COUNT(*) INTO num_registrations FROM REGISTERS
+                WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
+                SELECT COUNT(*) INTO num_redemptions FROM REDEEMS
+                WHERE course_session_id = r.course_session_id AND launch_date = r.launch_date AND course_id = r.course_id;
+                num_remaining_seats := s_capacity - num_registrations - num_redemptions;
+                IF num_remaining_seats > 0 THEN
+                    RETURN NEXT;
+                END IF;
+            END LOOP;
+            CLOSE curs;
+        END IF;
     END;
     $$ language plpgsql;
 
