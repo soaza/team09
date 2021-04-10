@@ -2453,18 +2453,15 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 FETCH curs2 INTO r2;
                 EXIT WHEN NOT FOUND;
                 IF (r2.eid = r1.eid) THEN
-                    RAISE NOTICE '%', mngr_name;
                     -- calculating registration fees
                     SELECT COUNT(*) INTO num_reg FROM Registers WHERE launch_date = r2.launch_date AND course_id = r2.course_id;
                     reg_fees := r2.fees * num_reg;
-                    RAISE NOTICE '1. %', reg_fees;
                     SELECT COUNT(*), SUM(refund_amt) INTO num_cancelled_reg, tmp_sum FROM Cancels
                     WHERE refund_amt IS NOT NULL AND launch_date = r2.launch_date AND course_id = r2.course_id;
                     IF tmp_sum IS NULL THEN
                         tmp_sum := 0;
                     end if;
                     reg_fees := reg_fees + (num_cancelled_reg * r2.fees - tmp_sum);
-                    RAISE NOTICE '2. %', reg_fees;
 
                     -- calculating total redemption registration fees
                     SELECT SUM(price / num_free_registrations) INTO tmp_sum FROM Redeems natural join Course_packages
@@ -2473,7 +2470,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                         tmp_sum := 0;
                     end if;
                     reg_fees := reg_fees + tmp_sum;
-                    RAISE NOTICE '3. %', reg_fees;
                     SELECT SUM(price / num_free_registrations) INTO tmp_sum FROM Cancels natural join Course_packages
                     WHERE launch_date = r2.launch_date AND course_id = r2.course_id
                     AND package_credit = 0;
@@ -2481,7 +2477,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                         tmp_sum := 0;
                     end if;
                     reg_fees := reg_fees + tmp_sum;
-                    RAISE NOTICE '4. %', reg_fees;
 
                     net_reg_fees := net_reg_fees + reg_fees;
 
@@ -2494,7 +2489,6 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
                 END IF;
             END LOOP;
             CLOSE CURS2;
-            RAISE NOTICE '%',highest_course_title;
             highest_course_title := highest_course;
             RETURN NEXT;
         END LOOP;
