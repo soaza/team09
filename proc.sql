@@ -224,7 +224,7 @@
 
     -- Trigger: registration_deadline must be before depart_date of administrator
     -- TABLE: Offerings
-    create function registration_deadline_before_depart_date() returns trigger
+    create or replace function registration_deadline_before_depart_date() returns trigger
         language plpgsql
     as
     $$
@@ -367,7 +367,7 @@
 
     -- Trigger 10: course_session_id inserted into Course_sessions must be in consecutive order
     -- TABLE: Course_sessions
-    create function consecutive_sid_course_sessions() returns trigger
+    create or replace function consecutive_sid_course_sessions() returns trigger
         language plpgsql
     as
     $$
@@ -395,7 +395,7 @@
 
     -- Trigger 11: Course_session_date must be before depart_date of employee
     -- TABLE: Course_sessions
-    create function course_session_date_before_depart_date() returns trigger
+    create or replace function course_session_date_before_depart_date() returns trigger
         language plpgsql
     as
     $$
