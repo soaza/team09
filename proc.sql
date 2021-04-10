@@ -2147,7 +2147,7 @@ FOR EACH ROW EXECUTE FUNCTION delete_session_func();
             EXIT WHEN NOT FOUND;
             num_pkgs := num_pkgs + 1;
 
-            IF (prev_num_sold = r.num_pkgs_sold AND prev_price = r.price) OR num_pkgs <= N THEN
+            IF (prev_num_sold = r.num_pkgs_sold) OR num_pkgs <= N THEN
                 prev_num_sold := r.num_pkgs_sold;
                 prev_price := r.price;
 
