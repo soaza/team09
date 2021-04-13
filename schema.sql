@@ -33,6 +33,8 @@ CREATE TABLE Employees (
     check (depart_date  - join_date >= 0)
 );
 
+-- eid -> the rest
+
 CREATE TABLE Part_time_Emp (
     eid INTEGER PRIMARY KEY,
     hourly_rate DECIMAL,
@@ -41,6 +43,8 @@ CREATE TABLE Part_time_Emp (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+
+-- eid -> the rest
 
 CREATE TABLE Full_time_Emp (
     eid INTEGER PRIMARY KEY,
@@ -51,6 +55,9 @@ CREATE TABLE Full_time_Emp (
         deferrable initially deferred
 );
 
+-- eid -> the rest
+
+
 CREATE TABLE Managers (
     eid INTEGER PRIMARY KEY,
     CONSTRAINT managers_ft_fkey FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
@@ -59,6 +66,8 @@ CREATE TABLE Managers (
         deferrable initially deferred
 );
 
+-- skip
+
 CREATE TABLE Administrators (
     eid INTEGER PRIMARY KEY,
     CONSTRAINT administrators_ft_fkey FOREIGN KEY(eid) REFERENCES Full_time_Emp(eid)
@@ -66,6 +75,8 @@ CREATE TABLE Administrators (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+
+-- skip 
 
 CREATE TABLE Pay_slips (
     payment_date DATE,
@@ -80,6 +91,45 @@ CREATE TABLE Pay_slips (
     PRIMARY KEY(payment_date,eid)
 );
 
+``` 
+FD1: eid + payment_date -> amount + work hours + work days
+FD2: eid + work day + work hours -> amount
+-- eid determines salary of each employees(monthly/hourly rates)
+
+
+
+
+key : payment_date,eid 
+
+{eid,pd} = {everything}
+{payment_date,amount} = {payment_date,amount}
+{eid,work days,work hours} = {eid,work days,work hours,amount}
+
+check prime : amount
+R1(eid,workdays,work hours,amount)
+R1 confirm BCNF
+R2(eid,workdays,work hours,payment date)
+R2 confirm BCNF 
+
+In R1,
+eid + work day + work hours -> amount
+
+In R2,
+eid,payment_date ->work hours + work days
+By Axiom of augmentation,
+eid,payment_date ->eid + works hours + work days
+By Axiom of transitivity,
+eid,payment_date -> amount
+
+Therefore, functional dependencies are preserved.
+R1 and R2 are in BCNF.
+
+
+
+
+```
+
+
 CREATE TABLE Instructors (
     eid INTEGER PRIMARY KEY,
     CONSTRAINT instructors_emp_fkey FOREIGN KEY(eid) REFERENCES Employees(eid)
@@ -87,6 +137,7 @@ CREATE TABLE Instructors (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+-- skip
 
 CREATE TABLE Part_time_instructors (
     eid INTEGER PRIMARY KEY,
@@ -99,6 +150,7 @@ CREATE TABLE Part_time_instructors (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+-- skip
 
 CREATE TABLE Full_time_instructors (
     eid INTEGER PRIMARY KEY,
@@ -111,6 +163,7 @@ CREATE TABLE Full_time_instructors (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+-- skip
 
 CREATE TABLE Course_area (
     course_area_name TEXT PRIMARY KEY,
@@ -122,6 +175,7 @@ CREATE TABLE Course_area (
     -- for sql external statements
     -- (remove employee enforces for normal deletions)
 );
+-- skip
 
 CREATE TABLE Specialises (
     -- eid is for instructors specialising in course_area
@@ -137,6 +191,7 @@ CREATE TABLE Specialises (
     -- decision not to put on update cascade because if an instructor specialises in the previous course area, 
     -- it doesn't necessarily mean that he would specialise in the updated course area as well
 );
+-- skip 
 
 CREATE TABLE Courses (
     course_id INTEGER PRIMARY KEY,
@@ -152,6 +207,10 @@ CREATE TABLE Courses (
     -- when there is a course with that area
     -- decision not to put on update cascade because doesnt mean the course is in cs means it is in english
 );
+```
+course_id -> everything
+title -> everything
+```
 
 CREATE TABLE Offerings (
     launch_date DATE
@@ -176,7 +235,9 @@ CREATE TABLE Offerings (
         ON UPDATE CASCADE
     -- decision to not put on delete cascade because cannot an administrator cannot be deleted if he was in charge a course offering
 );
--- Trigger: seating_capacity >= num_registrations with the same course_id in Register
+```
+launch_date + course_id -> everything
+```
 
 CREATE TABLE Rooms (
     rid INTEGER PRIMARY KEY,
@@ -184,6 +245,10 @@ CREATE TABLE Rooms (
     room_location TEXT,
     seating_capacity INTEGER
 );
+```
+room_location -> seating_capacity
+rid -> everything
+```
 
 
 CREATE TABLE Course_Sessions (
@@ -232,6 +297,27 @@ CREATE TABLE Course_Sessions (
     PRIMARY KEY(launch_date,course_id,course_session_id)
 );
 
+```
+FD1:course_id + launch_date + course_session_id -> everything
+
+FD2:course_id + start_time -> end_time
+FD3:course_id + end_time -> start_time
+Course_id determines duration of a course_session.
+
+FD4:course_id,launch_date,start_time,session_date -> course_session_id
+
+
+{course_id,start_time}+ -> {course_id,start_time,end_time}
+{course_id,end_time,launch_date}+ -> {course_id,end_time,launch_date,start_time}
+Prime attributes: course_id,start_time,end_time,launch_date,session_date,course_session_id
+
+By transitivity,the following with FD3 with FD4 and FD1,
+{course_id,end_time,launch_date,session_date}+ -> everything
+Same applies for 
+{course_id,start_time,launch_date,session_date}+ -> everything
+Therefore, table is in 3NF
+```
+
 CREATE TABLE Customers (
     cust_id INTEGER PRIMARY KEY,
     cust_address TEXT,
@@ -257,6 +343,11 @@ CREATE TABLE Credit_cards (
         ON UPDATE CASCADE
         deferrable initially deferred
 );
+```
+credit_card_num -> everything
+cust_id,from_date -> everything
+In 3NF
+```
 
 
 CREATE TABLE Registers (
@@ -281,6 +372,18 @@ CREATE TABLE Registers (
     -- if course_session_id is in primary key, customer can register for more
     -- than 1 session for the same offering which is uniquely identified by launchdate and course_id.
 );
+```
+FD1:cust_id,launch_date,course_id -> everything
+FD2:credit_card_num -> cust_id
+cust_id is a prime attribute as (cust_id,launch_date,course_id) is the key.
+
+FD3:course_id,launch_date,credit_card_num-> course_session_id
+By Axiom of transitivity and augmentation(FD3 followed by FD2 results in FD1),
+FD3 fulfils 3NF.
+
+Table is in 3NF.
+
+```
 
 CREATE TABLE Course_packages (
     package_id INTEGER PRIMARY KEY,
@@ -293,6 +396,9 @@ CREATE TABLE Course_packages (
     num_free_registrations INTEGER
         check (num_free_registrations >= 0)
 );
+```
+package_id -> everything
+```
 
 CREATE TABLE Buys (
     buy_date DATE,
@@ -308,6 +414,9 @@ CREATE TABLE Buys (
     -- decision not to put on delete cascade to prevent packages from being deleted when at least 1 person has bought it
     PRIMARY KEY(buy_date,credit_card_num,package_id)
 );
+```
+buy_date,credit_card_num,package_id -> everything
+```
 
 CREATE TABLE Redeems (
     redeem_date DATE,
@@ -328,6 +437,11 @@ CREATE TABLE Redeems (
     -- decision not to put on delete cascade to prevent packages from being deleted when at least 1 person has redeemed from it
     PRIMARY KEY(redeem_date,course_session_id,launch_date,course_id,buy_date,credit_card_num,package_id)
 );
+```
+credit_card_num + launch_date + course_id -> everything
+
+FD satisfies 3NF
+```
 
 CREATE TABLE Cancels (
     -- to check that it is refundable
@@ -353,3 +467,32 @@ CREATE TABLE Cancels (
     -- decision not to put on delete cascade to prevent a customer from being deleted when he has a transaction history
     PRIMARY KEY(cancel_date,course_session_id,launch_date,course_id,cust_id)
 );
+```
+FD1:cancel_date,course_session_id,launch_date,course_id,cust_id -> everything 
+FD2:launch_date,course_id,course_session_id,cancel_date -> refund_amount,package_credit
+BCNF must be done because FD2 does not satisfy 3NF.
+
+R1(launch_date,course_id,course_session_id,cancel_date,refund_amount,package_credit)
+R2(launch_date,course_id,course_session_id,cancel_date,cust_id,package_id)
+R2 is in BCNF due to FD1.
+
+For R1,
+R1 is in BCNF due to augmentation of FD2.
+
+For R1,
+The functional dependencies that holds on R1 is FD2.
+For R2,
+The function dependencies that holds on R2 is 
+cancel_date,course_session_id,launch_date,course_id,cust_id -> cust_id,package_id
+
+So the FDs that are that needs to be derived to form the original set are:
+cancel_date,course_session_id,launch_date,course_id,cust_id -> refund_amount,package_credit
+
+In R2,
+cancel_date,course_session_id,launch_date,course_id,cust_id -> launch_date,course_id,course_session_id,cancel_date
+(trivial)
+By transitivity,
+cancel_date,course_session_id,launch_date,course_id,cust_id -> refund_amount,package_credit
+
+So R1 and R2 preserves functional dependencies.
+```
